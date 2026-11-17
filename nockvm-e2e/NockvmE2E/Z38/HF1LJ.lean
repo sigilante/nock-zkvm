@@ -36,9 +36,9 @@ def sJ : Noun := .cell (.atom 3) (.atom (Nock.Field.p + 5))
 
 /-- the formula: one template call (id 7, `compile p TN`) and one big-atom `add` (id 8), as `jpProg.2` -/
 def fJ : Noun :=
-  .cell (.cell (.atom 11) (.cell (.cell (.atom 7) (.cell (.atom 1) (.atom 0)))
+  .cell (.cell (.atom 11) (.cell (.cell (.atom Nock.Jet.wildTag) (.cell (.atom 1) (.atom 7)))
             (Nock.Jet.Autogen.compile Nock.Field.p NockvmE2E.Z38.CatJ.TN)))
-         (.cell (.atom 11) (.cell (.cell (.atom 8) (.cell (.atom 1) (.atom 0))) (Nock.Jet.Prim.primC .add)))
+         (.cell (.atom 11) (.cell (.cell (.atom Nock.Jet.wildTag) (.cell (.atom 1) (.atom 8))) (Nock.Jet.Prim.primC .add)))
 
 noncomputable section
 

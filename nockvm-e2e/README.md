@@ -164,13 +164,17 @@ scripts/run-free.sh ex1 --subject "[41 7]" --formula "[[4 [0 2]] [4 [4 [0 3]]]]"
 Rejected input: `--subject "[41 7"` gives `ERROR: --subject: cannot parse '[41 7': unclosed '[': missing ']' at the end of the input (after 5 characters)`.
 A crashing program (`--subject "[5 5]" --formula "[2 [0 1] [1 [4 [0 1]]]]"`) gives `ERROR: LABEL: the Nock run did not finish (crash, or more than fuel 1000 steps; try --fuel N with a larger N)`.
 
-Jet example (executed; `--print-primc add` gives the primitive's formula; verify ACCEPT, total 193 s: emit 54, prove 124, vk-setup+fix-prove 3, verify 12; peak RSS 587 MB):
+Jet example (executed; `--print-primc add` gives the primitive's formula; a jet call is `[11 [%wild [1 id]] body]`, and
+`%wild` is the atom `1684826487`; verify ACCEPT, 107 s for the five steps on an Apple-silicon Mac):
 
 ```
 scripts/run-free.sh ex2 --subject "[4294967301 4294967303]" --prims 7:add --fuel 2 \
-  --formula "[11 [7 [1 0]] $(nockvm-e2e-j9alemit2 --print-primc add)]"
-# ACCEPT claim [[4294967301 4294967303] [11 [[7 [1 0]] [6 ...]]] 8589934604] (online, VK; famGates j9al; 11408 ms)
+  --formula "[11 [1684826487 [1 7]] $(nockvm-e2e-j9alemit2 --print-primc add)]"
+# ACCEPT claim [[4294967301 4294967303] [11 [[1684826487 [1 7]] [6 ...]]] 8589934604] (online, VK; famGates j9al; ...)
 ```
+
+On macOS `nockvm-e2e-j9al-prove` writes every output and then exits 1, because its peak-memory report reads
+`/proc/self/status`; `run-free.sh` stops there. Run the remaining steps (vk-setup, fix-prove, verify) by hand.
 
 Chip-literal error (executed): `kroots` = number of distinct subjects read at axis ≥ 2; `--subject "[4 5]" --formula "[7 [[0 3] [0 2]] [0 2]]"`
 reads in two subjects, so `kroots` 2, which has no literal:
@@ -184,7 +188,7 @@ prover's in-process verifier says `verifyFlatE (in-process): REJECT (DeepCheck f
   giving the character position (`unclosed '['`, `a cell needs at least two elements`, `trailing input after the noun`, ...).
 - `--prims 7:add,8:mul` registers primitive jets (ops `add sub lt mul div mod`; `dec` is refused) at the given ids; `--fuel` (default 1000)
   bounds the Nock run. `nockvm-e2e-j9alemit2 --print-primc add` prints the formula of a primitive, for building
-  `[11 [7 [1 0]] <primC add>]` as in the built-in `add` program.
+  `[11 [1684826487 [1 7]] <primC add>]` (`%wild`, key 7) as in the built-in `add` program.
 - `LABEL` names the output files (`$WORK/LABEL/...`). The built-in names `add mul toy absent jp` work without `--subject`.
 - The same flags work directly on `nockvm-e2e-j9alemit2 OUT ... LABEL` and `nockvm-e2e-j9al-prove [flags] DOCS LABEL OUT`
   (`DOCS` = `chipdocs/` plus the `j9al_aluChipJ9.json` the emitter writes; `run-free.sh` assembles it).

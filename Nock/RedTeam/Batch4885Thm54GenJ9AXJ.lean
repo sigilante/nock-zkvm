@@ -1,7 +1,7 @@
 /-
   Nock/RedTeam/Batch4885Thm54GenJ9AXJ.lean
 
-  The input of `genJ9AXJ` on the jetted matmul `n = 2` (`[11 [7 [1 0]] c_T]` on `toyS`, registry
+  The input of `genJ9AXJ` on the jetted matmul `n = 2` (`[11 [%wild [1 7]] c_T]` on `toyS`, registry
   `[7 ↦ matmulT 2]` = `regOf matRt [7]`), at the pseudo-random coins `Gen.prngCoins 1`.
   The definition is not evaluated in this module (an interpreted `#eval` of this pipeline is too slow).
   Observed with the compiled diagnostic: `run.isSome = true`, `checkJ9AX I = true`, and adding `1` to J column 28

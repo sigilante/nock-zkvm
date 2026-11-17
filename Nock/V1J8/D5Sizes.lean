@@ -45,7 +45,7 @@ def matRef (N : ℕ) : Noun :=
 /-- The PURE formula: the compiled matmul body, no jet hint. -/
 def matPure (N : ℕ) : Noun := compile P (matmulT N)
 
-/-- The JETTED program `[11 [7 [1 0]] c_T]`. -/
+/-- The JETTED program `[11 [%wild [1 7]] c_T]`. -/
 def matJetF (N : ℕ) : Noun := Nock.Jet.wildCall 7 (compile P (matmulT N))
 
 /-- Cell count of a noun. -/

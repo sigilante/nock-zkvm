@@ -2,7 +2,7 @@
   Nock/RedTeam/Batch4936Thm54J9ALGenLinkToy.lean
 
   **Honest link for J-9 AL: a hypothesis-free instance of `checkJ9ALX_genJ9ALXJ`.**  The toy run of Batch4921
-  (`*[[(p+5) (p+7)] [11 [id_add [1 0]] (primC add)]] = 2p+12` over `addPrims empty [(id_add, add)]`, one call of the
+  (`*[[(p+5) (p+7)] [11 [%wild [1 id_add]] (primC add)]] = 2p+12` over `addPrims empty [(id_add, add)]`, one call of the
   primitive `add` on two big atoms, so the ALU chip is on): at a good coin, the generator `genJ9ALXJ` produces a
   record, and the wired checker `checkJ9ALX` accepts it.  Every binder of `checkJ9ALX_genJ9ALXJ` is a closed lemma:
   Batch4921's / toy facts, `CompiledByP` of the toy registry (its only entry is the primitive), and a good
@@ -47,7 +47,7 @@ theorem genT_L (χe : CoinsE) :
   rfl
 
 /-- **`genLink_toy`: the input generator and the executable checker agree on a concrete ALU run, with no hypothesis.**
-For the run of one `add` primitive call on two big atoms (`*[[(p+5) (p+7)] [11 [id_add [1 0]] (primC add)]] = 2p+12`,
+For the run of one `add` primitive call on two big atoms (`*[[(p+5) (p+7)] [11 [%wild [1 id_add]] (primC add)]] = 2p+12`,
 ALU chip on), there is a coin vector `χe` at which `genJ9ALXJ` produces an input `I`, and `checkJ9ALX I = true`. -/
 theorem genLink_toy : ∃ χe : CoinsE, ∃ I : Nock.V1J9AL.CheckJ9AL.InJ9AL,
     Nock.V1J9AL.GenJ9ALXJ.genJ9ALXJ RgT.R (rtP Rt0T primsT) primsT 2 sT fT χe = some I ∧

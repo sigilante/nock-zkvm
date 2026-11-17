@@ -7,7 +7,7 @@ by `decide`).
   1. §1 `Rn0`, the spelled run of Batch4936's `add` program (`RnOf tT rT = Rn0`: the WF `bfsForest` replaced by its two-element list), the spelled
      J-9 A rows `rows9T` / `bfs9T` (nock's `ComplJ9ALToyFacts`), and `bigsT` (the `mergeSort` of the three big atoms, spelled).
   2. §2 sizes of nock's generator record `recJ9ALXJ` at the add program, FOR EVERY COINS `χe` (the table sizes, root counts, flags, `prims`, the pin
-     functions at the one primitive, `regs = ids = []`, `g = 0`, the row budget `m = 116`).
+     functions at the one primitive, `regs = ids = []`, `g = 0`, the row budget `m = 117`).
   3. §3 `HF1L XI`: the conclusion shape of nock's `genJ9ALXJ_honest_at` at the shared orbit `orbSh XI`  [nock-pending: nockvm adds
      `genJ9ALXJ_honest_at'` with `OrbAdmL'` = `OrbAdmL` minus `ALh`].
   4. §4 `add_air`: `AccJ9AL ∧ PubP9AL` at `DX9L XI … cAdd` from `HF1L XI`, the instance shape, and the instance gates `hsh`, `hpreg`, `hrt`.
@@ -113,7 +113,7 @@ theorem sz_AL (χe : CoinsE) : (RS χe).AL.n = 12 := by
   decide +kernel
 
 theorem sz_X (χe : CoinsE) : (RS χe).X.n = 2 := by spell; rfl
-theorem sz_C (χe : CoinsE) : (RS χe).C.n = 116 := by spell; rfl
+theorem sz_C (χe : CoinsE) : (RS χe).C.n = 117 := by spell; rfl
 theorem sz_W (χe : CoinsE) : (RS χe).W.n = 1 := by spell; rfl
 theorem sz_A (χe : CoinsE) : (RS χe).A.n = 5 := by
   show (atomGenE _ _ _ _ _ _ _).1.size = 5
@@ -138,7 +138,7 @@ theorem fl_rkP (χe : CoinsE) : (RS χe).rkP 7 = (0, 43) := by spell; rfl
 theorem fl_g (χe : CoinsE) : (RS χe).g = 0 := by spell; rfl
 
 theorem c_X (χe : CoinsE) : (compK Rtt sT fT χe Rn0).rows.size = 2 := by spell; rfl
-theorem c_C (χe : CoinsE) : (cRPLK Rtt primsT sT fT χe Rn0).1.size = 116 := by spell; rfl
+theorem c_C (χe : CoinsE) : (cRPLK Rtt primsT sT fT χe Rn0).1.size = 117 := by spell; rfl
 theorem c_W (χe : CoinsE) : (wRPK Rtt sT fT χe Rn0).1.size = 1 := by spell; rfl
 theorem c_A (χe : CoinsE) : (aRPLK Rtt primsT sT fT χe Rn0).1.size = 5 := by
   unfold aRPLK
@@ -152,20 +152,20 @@ theorem c_SP (χe : CoinsE) : (sRPK Rtt sT fT χe Rn0).1.size = 1 := by spell; r
 theorem c_lay (χe : CoinsE) : (layLK Rtt primsT sT fT χe Rn0).length = 0 := by spell; rfl
 theorem c_AL (χe : CoinsE) : (lRPLK Rtt primsT sT fT χe Rn0).1.size = 12 := sz_AL χe
 
-/-- **[kernel] the row budget of the record is `m = 116`, i.e. `budget 116` (every row parameter `232`)**, for every coins -/
-theorem m_RS (χe : CoinsE) : mLK Rtt primsT sT fT χe Rn0 = 116 := by
+/-- **[kernel] the row budget of the record is `m = 117`, i.e. `budget 117` (every row parameter `234`)**, for every coins -/
+theorem m_RS (χe : CoinsE) : mLK Rtt primsT sT fT χe Rn0 = 117 := by
   unfold mLK
   rw [c_X, c_C, c_W, c_A, c_V, c_AX, c_SP, c_lay, c_AL]
   decide
 
-theorem BLK_RS (χe : CoinsE) : BLK Rtt primsT sT fT χe Rn0 = 232 := by
+theorem BLK_RS (χe : CoinsE) : BLK Rtt primsT sT fT χe Rn0 = 234 := by
   unfold BLK
   rw [m_RS]
   decide
 
-/-- the rows of the record: every parameter is `232` -/
+/-- the rows of the record: every parameter is `234` -/
 theorem rows_RS (χe : CoinsE) :
-    (RS χe).toRowsL = ⟨⟨budget 116, 232, 232⟩, 232⟩ := by
+    (RS χe).toRowsL = ⟨⟨budget 117, 234, 234⟩, 234⟩ := by
   show (⟨⟨budget (mLK Rtt primsT sT fT χe Rn0), BLK Rtt primsT sT fT χe Rn0, BLK Rtt primsT sT fT χe Rn0⟩,
     BLK Rtt primsT sT fT χe Rn0⟩ : Nock.NockVMROM.Thm54.VclL.Handle.RealIOJ9AL.RowsJ9AL) = _
   rw [m_RS, BLK_RS]
@@ -201,7 +201,7 @@ open Nock.V1J8.Gen (budget)
 
 noncomputable section
 
-/-- the public claim of the executed `add` instance: `*[[(p+5) (p+7)] [11 [7 [1 0]] (primC add)]] = 2p+12` -/
+/-- the public claim of the executed `add` instance: `*[[(p+5) (p+7)] [11 [%wild [1 7]] (primC add)]] = 2p+12` -/
 def cAddB : P8PublicClaim := ⟨sT, fT, rT⟩
 
 /-- **`HF1L XI`, the named hypothesis [nock-pending]**: the conclusion shape of nockvm's `genJ9ALXJ_honest_at'` (= `genJ9ALXJ_honest_at` with `OrbAdmL'`
@@ -218,10 +218,10 @@ def HF1L (XI : ExecInst) : Prop :=
         (withOrbL I (orbSh XI)).toTrL (withOrbL I (orbSh XI)).toRowsL (withOrbL I (orbSh XI)).g
 
 /-- **[instance] the shape of the executed `add` instance** (to be discharged at the literal `addALR` by `decide`, per table, as `hNof_toy`): table row counts
-`[X 2, C 116, W 1, A 5, AL 12]`, the three optional tables absent (`n = 1`, flag off) except the ALU, the one prim record `(7, add)`
+`[X 2, C 117, W 1, A 5, AL 12]`, the three optional tables absent (`n = 1`, flag off) except the ALU, the one prim record `(7, add)`
 with pin index `5` and rank limbs `(0, 43)`. -/
 def AddShape (XI : ExecInst) : Prop :=
-  hNof XI "computeChipVCLHX9" = 2 ∧ hNof XI "cellChipHQKW" = 116 ∧ hNof XI "walkChipJ8" = 1 ∧ hNof XI "atomChipHQL" = 5 ∧
+  hNof XI "computeChipVCLHX9" = 2 ∧ hNof XI "cellChipHQKW" = 117 ∧ hNof XI "walkChipJ8" = 1 ∧ hNof XI "atomChipHQL" = 5 ∧
   nOpt XI "walkChipHQK" = 1 ∧ nOpt XI "axisChipJ9" = 1 ∧ nOpt XI "splitChipJ9" = 1 ∧ nOpt XI "aluChipJ9" = 12 ∧
   (tabOf XI "axisChipJ9").isSome = false ∧ (tabOf XI "splitChipJ9").isSome = false ∧ (tabOf XI "aluChipJ9").isSome = true ∧
   primsOf XI = primsT ∧ idxPOf XI 7 = 5 ∧ rkPOf XI 7 = (0, 43)
@@ -278,7 +278,7 @@ theorem add_air (XI : ExecInst) (hsh : shapeOkF famJ9AL XI = true) (hJ : hNof XI
     e_regs e_ids
     (fun q hq => by rw [e_idxP]; exact hiP' q (by rw [e_prims, hpp] at hq; exact hq))
     (fun q hq => by rw [e_rkP]; exact hrP' q (by rw [e_prims, hpp] at hq; exact hq)) hacc
-  have hrows : (withOrbL (RS χe) (orbSh XI)).toRowsL = ⟨⟨budget 116, 232, 232⟩, 232⟩ :=
+  have hrows : (withOrbL (RS χe) (orbSh XI)).toRowsL = ⟨⟨budget 117, 234, 234⟩, 234⟩ :=
     (wOrbL_rows _ _).trans (rows_RS χe)
   have hg : (withOrbL (RS χe) (orbSh XI)).g = 0 := (wOrbL_g _ _).trans (fl_g χe)
   rw [hrows, hg] at hacc2

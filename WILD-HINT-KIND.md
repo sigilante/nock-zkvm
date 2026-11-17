@@ -1,9 +1,10 @@
 # Jets as a hint kind: `%wild`
 
-A proposal against REL-5.4 (`7a51d916`), as a branch. Status: see
-the end of layer 2. Layer 3, the end-to-end package, is not
-started. The purpose of the branch is to show the change and its
-price, not to be merged as is.
+A proposal against REL-5.4 (`7a51d916`), as a branch. All three
+layers are ported: the generator, the compute chip with the library's
+proofs, and the end-to-end package with its fixtures. Status and
+measured cost are at the end of layers 2 and 3. The purpose of the
+branch is to show the change and its price, not to be merged as is.
 
 ## The change
 
@@ -209,21 +210,90 @@ an identical cell inside the compiled template and cost nothing. In
 both measured programs the cell table grows by one row per distinct
 jet id: 122 → 123 for the one-call program
 (`Batch4771`), 157 → 159 for `jp`'s twin with two ids (`Batch4939`).
-Columns, decoding and public-input shape are unchanged. Proof size
-and verifier time are not measured; they need layer 3.
+Columns, decoding and public-input shape are unchanged. End-to-end
+proof sizes are in layer 3.
 
-## Layer 3: the end-to-end package (not started)
+## Layer 3: the end-to-end package
 
-The e2e executable verifier loads emitted constraint DAGs
-(`nockvm-e2e/chipdocs/j8_*.json`), and on this branch those still
-encode REL-5.4's chip. So the shipped executable currently checks
-the old gates: it can reject an honest new-form proof, and it cannot
-accept a false claim, since the old chip is sound for the same
-`evalN`. The chip appears in `nockvm-e2e/` as kernel-checked
-literals as well. Two more gates change the constraint list, so the literals, the
-verification keys and the shipped fixtures (`add`, `jp`) would be
-regenerated, and any numeric lemma that depends on the constraint
-count re-checked. Not examined beyond that.
+`nockvm-e2e/` is ported: its chip documents, chip literals, fixtures,
+instance literals and the proofs that depend on them are regenerated
+for the new chip, with the release's own tools.
+
+**Chip documents** (`chipdocs/`). `j8_computeChipVCLHX.json` and
+`j9a_computeChipVCLHX9.json` are re-emitted with the emitter in
+`Exec/J9AEmitMain.lean` (`docJson`). The emitter was first checked by
+re-emitting four unchanged documents (`j9a_axisChipJ9`,
+`j9a_splitChipJ9`, `j8_cellChipHQKW`, `j8_atomChipHQL`): all four are
+byte-identical to the shipped files. The two compute documents differ
+from REL-5.4's by exactly two constraints each (227 → 229 and
+276 → 278, both `base_transition`), with the same columns and the
+same document header.
+
+**Chip literals** (`Exec/J8Chips.lean` `chipCompute`,
+`Exec/J9AChips.lean` `chipCompute9`). Regenerated with the in-repo
+generator `J9AChipsGen.genChip`, which was first checked to reproduce
+the shipped `chipAtom` and `chipCell` literals exactly. The kernel
+ties `tie_compute`, `tie_compute9` (`tieB spec lit`, by `decide
++kernel`) hold for the new literals.
+
+**Fixtures** (`fixtures/j9al-add`, `fixtures/j9alj-jp`). Regenerated
+with `nockvm-e2e-j9alemit2` and `nockvm-e2e-j9al-prove` (`jp` with
+`--reg-catj`), `jp.pub.json` with `verify-fam index`, and
+`SHA256SUMS` rewritten over the same file lists. The README's
+procedure accepts both, with `nockvm-e2e-verify-fam verify --vk` and
+with the certified `nockvm-e2e-verify-cert`. Negative checks: the
+REL-5.4 `add` fixture is rejected by the new verifier (`chipsOkF`: a
+loaded chip is not a literal of the family), and `--wrong-claim` is
+rejected by the prover's in-process verifier (`public relation
+fails`). The README's jet example also runs and verifies in the new
+form.
+
+**Instance literals** (`Exec/AddALR.lean`, `Exec/JpALR.lean`). The
+release does not include their generator. They were patched from the
+new instances as `FlatFam.loadInstF famJ9AL` loads them, each old
+value first asserted equal to the old literal. The changes are: the
+claim formula's tokens (`[%wild [1 7]]`), the cell table's `hN`
+(116 → 117, 157 → 159), two preprocessed columns (170, 171), the
+compute chip's K-tag array lengths (all `false`, +3 shared, +2
+constraints), and `jp`'s primitive cell index (122 → 124).
+
+**Proofs.** Hard-coded sizes follow (`LinkJ9ALAdd`, `LinkJ9ALToy`,
+`GenJp`, `LinkJ9ALJjp`: 116 → 117, 232 → 234, 157 → 159, 314 → 318,
+122 → 124), `jp`'s two calls get their own clue trees (`GenJp`), and
+the clue values in `JpClaim`'s truth proof are the keys.
+
+**Checked.** The whole package builds (17,750 jobs). The ten
+end-to-end headlines (`nock_e2e_J9AL_succinct`{,`_B`,`_S`},
+`nock_e2e_J9ALJ_succinct`{,`_B`,`_S`}, `nock_e2e_J9AL_numbers`,
+`nock_e2e_J9A_succinct`, `verifyBytesL_sound`, `verifyBytesLJ_sound`)
+depend on `[propext, Classical.choice, Quot.sound]`. The build's
+8,094 axiom printouts name nothing else and no `sorryAx`.
+
+**Measured cost, end to end**, REL-5.4 fixture against the new one:
+
+| | `add` (1 call) | `jp` (2 calls) |
+|---|---|---|
+| cell-table rows | 116 → 117 | 157 → 159 |
+| padded table height, columns | unchanged | unchanged |
+| opened trace values `vT` | 6,927 = 6,927 | 7,389 = 7,389 |
+| quotient values, roots, FRI final | unchanged | unchanged |
+| statement `z` (field elements) | 560 → 562 | 3,038 → 3,042 |
+| Merkle paths `trees` | 425,385 → 438,409 | 474,344 → 465,003 |
+| proof JSON bytes | +2.9% | −2.0% |
+
+The statement grows by two elements per jet call: atom `0` encodes as
+zero limbs and the key as one limb plus a length; the tag `%wild` and
+the old tag `7` are both one limb. The Merkle-path count moves with
+how many of the 170 Fiat–Shamir query positions coincide (166 → 169
+distinct for `add`, 170 → 168 for `jp`), which is why the two
+programs move in opposite directions; that is sampling, one sample
+each, not a cost of the change. Verifier time was not measured
+against REL-5.4.
+
+**Known issue, not introduced here.** On macOS
+`nockvm-e2e-j9al-prove` exits 1 after writing all its outputs, because
+its peak-memory report reads `/proc/self/status`; `scripts/run-free.sh`
+stops at that step.
 
 ## An open choice
 

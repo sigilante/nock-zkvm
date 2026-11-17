@@ -51,7 +51,7 @@ noncomputable section
 /-! ## 1. shape facts of the executed instance, per field -/
 
 theorem sh_X : hNof XJ "computeChipVCLHX9" = 5 := by decide +kernel
-theorem sh_C : hNof XJ "cellChipHQKW" = 157 := by decide +kernel
+theorem sh_C : hNof XJ "cellChipHQKW" = 159 := by decide +kernel
 theorem sh_W : hNof XJ "walkChipJ8" = 1 := by decide +kernel
 theorem sh_J : hNof XJ "jetChipJ8" = 17 := by decide +kernel
 theorem sh_A : hNof XJ "atomChipHQL" = 3 := by decide +kernel
@@ -64,7 +64,7 @@ theorem sh_spo : (tabOf XJ "splitChipJ9").isSome = false := by decide +kernel
 theorem sh_alo : (tabOf XJ "aluChipJ9").isSome = true := by decide +kernel
 theorem sh_wvo : (tabOf XJ "walkChipHQK").isSome = false := by decide +kernel
 theorem sh_prims : primsOf XJ = catJ.prims := by decide +kernel
-theorem sh_idxP : idxPOf XJ 8 = 122 := by decide +kernel
+theorem sh_idxP : idxPOf XJ 8 = 124 := by decide +kernel
 theorem sh_rkP : rkPOf XJ 8 = (0, 43) := by decide +kernel
 theorem sh_idx : idxOfPub XJ.pubIn 7 = 6 := by decide +kernel
 theorem sh_rk : rkOfPub XJ.pubIn 7 = (0, 190) := by decide +kernel
@@ -147,7 +147,7 @@ theorem jp_air_k (hsh : shapeOkF famJ9AL XJ = true) (hF : HF1LJ XJ) :
     rw [e_rkP, sh_rkP, fl_rkP]
   have hacc2 := acceptsJ9AL_congr_regs deltaF powerBasis3 catJ.toCR.Rt (idxOfPub XJ.pubIn) (rkOfPub XJ.pubIn) (idxPOf XJ) (rkPOf XJ)
     hRt7 hRt7' hix hrk hiP hrP hacc
-  have hrows : (withOrbL (RS χe) (orbSh XJ)).toRowsL = ⟨⟨budget 157, 314, 314⟩, 314⟩ := rows_RS χe
+  have hrows : (withOrbL (RS χe) (orbSh XJ)).toRowsL = ⟨⟨budget 159, 318, 318⟩, 318⟩ := rows_RS χe
   have hg : (withOrbL (RS χe) (orbSh XJ)).g = 1 := fl_g χe
   rw [hrows, hg] at hacc2
   have hacc3 := acceptsJ9AL_mono_rows deltaF powerBasis3 hacc2 (r' := cornerC9L) (g' := 2 ^ 31)
@@ -192,8 +192,8 @@ theorem hord_jp (hsh : shapeOkF famJ9AL XJ = true) :
   rw [Nock.TraceGenExe.Gold.ofU64_toZ]
   exact orbit_order_of_shapeF hsh
 
-/-- every table row count of the record at `jp` is at most `3 * 2^(k+1) = 768`: X 5, C 157, W 1, J 17, A 3, V 1, AX 1, SP 1, AL 12 -/
-theorem rows_le_jp : ∀ n ∈ ([5, 157, 1, 17, 3, 1, 1, 1, 12] : List ℕ), n ≤ 3 * 2 ^ (XJ.k + 1) := by decide +kernel
+/-- every table row count of the record at `jp` is at most `3 * 2^(k+1) = 768`: X 5, C 159, W 1, J 17, A 3, V 1, AX 1, SP 1, AL 12 -/
+theorem rows_le_jp : ∀ n ∈ ([5, 159, 1, 17, 3, 1, 1, 1, 12] : List ℕ), n ≤ 3 * 2 ^ (XJ.k + 1) := by decide +kernel
 
 theorem rows_le_jp_record (χe : CoinsE) : (RS χe).X.n ≤ 3 * 2 ^ (XJ.k + 1) ∧ (RS χe).C.n ≤ 3 * 2 ^ (XJ.k + 1) ∧ (RS χe).W.n ≤ 3 * 2 ^ (XJ.k + 1) ∧
     (RS χe).J.n ≤ 3 * 2 ^ (XJ.k + 1) ∧ (RS χe).A.n ≤ 3 * 2 ^ (XJ.k + 1) ∧ (RS χe).V.n ≤ 3 * 2 ^ (XJ.k + 1) ∧ (RS χe).AX.n ≤ 3 * 2 ^ (XJ.k + 1) ∧

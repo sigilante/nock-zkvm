@@ -1,7 +1,7 @@
 /-
   Nock/RedTeam/Batch4921Thm54J9ALComplToy.lean
 
-  **J-9 AL general completeness: non-vacuity of `complJ9AL_closed`.**  The toy run of   (`J9AL/ComplJ9ALToyFacts.lean`): `*[[(p+5) (p+7)] [11 [id_add [1 0]] (primC add)]] = 2p+12` over
+  **J-9 AL general completeness: non-vacuity of `complJ9AL_closed`.**  The toy run of   (`J9AL/ComplJ9ALToyFacts.lean`): `*[[(p+5) (p+7)] [11 [%wild [1 id_add]] (primC add)]] = 2p+12` over
   `addPrims empty [(id_add, add)]` (Goldilocks, `K = KC`, `δ = deltaF`, `b = powerBasis3`), one call of the primitive
   `add` on two big atoms (two limbs each, `≥ p`), so the ALU chip is on.  The template table is
   `rtP Rt0T [(id_add, add)]` with `Rt0T` constant `trivTpl` (the run calls only the primitive, so the prim-aware
@@ -149,7 +149,7 @@ noncomputable abbrev BL := ComplJ9ALClosed.BRun9AL deltaF powerBasis3 (rtP Rt0T 
 open Classical in
 /-- **`complJ9AL_toy`: J-9 AL completeness at a concrete run with an ALU primitive, every hypothesis discharged.**
 The run is one call of the primitive `add` on two atoms of two limbs each (both `≥ p`) over the Goldilocks prime,
-so the ALU chip is on: `*[[(p+5) (p+7)] [11 [id_add [1 0]] (primC add)]] = 2p+12`.  For this run, `AcceptsJ9AL`
+so the ALU chip is on: `*[[(p+5) (p+7)] [11 [%wild [1 id_add]] (primC add)]] = 2p+12`.  For this run, `AcceptsJ9AL`
 accepts at every good coin, the fraction of coins that are not good is at most `ε_c`, the trace family is staged
 (`StJ9AL`), the claim holds (`HoldsN`), and, as `|K| = cK`, `ε_c < 2^-120` with an accepting coin. -/
 theorem complJ9AL_toy :

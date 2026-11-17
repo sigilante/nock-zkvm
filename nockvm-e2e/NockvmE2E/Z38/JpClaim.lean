@@ -51,13 +51,14 @@ def cJ : P8PublicClaim := ⟨sJ, fJ, rJ⟩
 def cJF : P8PublicClaim := ⟨sJ, fJ, rJF⟩
 
 /-- the two hinted calls -/
-def fT7 : Noun := jetCall 7 (.cell (.atom 1) (.atom 0)) (Nock.Jet.Autogen.compile Nock.Field.p TN)
-def fA8 : Noun := jetCall 8 (.cell (.atom 1) (.atom 0)) (primC .add)
+def fT7 : Noun := wildCall 7 (Nock.Jet.Autogen.compile Nock.Field.p TN)
+def fA8 : Noun := wildCall 8 (primC .add)
 
 theorem fJ_eq : fJ = .cell fT7 fA8 := rfl
 
 /-- `genX` of `jp` over the catalogue registry: nockvm's run, by the kernel -/
-theorem hit7 : Nock.Edit.GenX.jetHit catJ.toVR.R (.atom 7) (Nock.Jet.Autogen.compile Nock.Field.p TN) sJ = some tplRes := by
+theorem hit7 : Nock.Edit.GenX.jetHit catJ.toVR.R (.atom Nock.Jet.wildTag) (.atom 7) (Nock.Jet.Autogen.compile Nock.Field.p TN) sJ =
+    some tplRes := by
   decide +kernel
 
 theorem run_jp : (Nock.V1J8.Gen.runX catJ.toVR.R 4 sJ fJ).map (·.res) = some rJ := by
@@ -86,7 +87,7 @@ theorem rel_tpl : (TN.toTemplate Nock.Field.p).rel sJ tplRes := by
   decide +kernel
 
 theorem holds_tpl : HoldsN ⟨sJ, fT7, tplRes⟩ := by
-  refine holdsN_hint_iff.mpr ⟨⟨1, .atom 0, rfl⟩, ?_⟩
+  refine holdsN_hint_iff.mpr ⟨⟨1, .atom 7, rfl⟩, ?_⟩
   have hj : catJ.toVR.R 7 = some ⟨(TN.toTemplate Nock.Field.p), Nock.Jet.Autogen.compile Nock.Field.p TN⟩ := rfl
   exact ((catJ.toVR.faithful 7 _ hj).1 _ _ rel_tpl)
 
@@ -94,7 +95,7 @@ theorem sem_jp : primSem .add 3 (Nock.Field.p + 5) = some (Nock.Field.p + 8) := 
   simp [primSem, Nock.Field.p]
 
 theorem holds_add8 : HoldsN ⟨sJ, fA8, .atom (Nock.Field.p + 8)⟩ :=
-  holdsN_hint_iff.mpr ⟨⟨1, .atom 0, rfl⟩, holdsN_primC (by decide) sem_jp⟩
+  holdsN_hint_iff.mpr ⟨⟨1, .atom 8, rfl⟩, holdsN_primC (by decide) sem_jp⟩
 
 theorem holds_jp : HoldsN cJ := by
   show HoldsN ⟨sJ, .cell fT7 fA8, rJ⟩

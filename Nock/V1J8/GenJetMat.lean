@@ -7,7 +7,7 @@
     `I.regs = regs`, `I.ids` = the run's call ids (`callsOf`), and `I.g = |regs|`.
   * `genJ8J_regOK`: the registry premise `RegOK I (regOf Rt regs)` of `checkJ8_iff` holds for every output, given only
     `WellTyped` of the registered templates (the registry is built from the templates).
-  * **The jetted matmul `n = 2`** (`[11 [7 [1 0]] c_T]` on `toyS`, registry `[7 ↦ matmulT 2]`, fuel `2`):
+  * **The jetted matmul `n = 2`** (`[11 [%wild [1 7]] c_T]` on `toyS`, registry `[7 ↦ matmulT 2]`, fuel `2`):
     `mat_some` — the generator returns an input at EVERY coin vector (its guard is coin-free; small kernel `decide`s
     over the two-row run and the call's honest values), `mat_ids` — the one call is id `7`; and
     **`mat_static_cheap`**: at every coin vector the output's registry conjuncts of the static block hold —

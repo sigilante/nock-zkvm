@@ -53,21 +53,21 @@ theorem not_holdsN_primC {op : PrimOp} (hop : op ≠ .dec) {s res : Noun}
   exact h x y n hs hn hr
 
 theorem clue_computes (s : Noun) : ∃ fuel v, Nock.evalN fuel s clueT = some v :=
-  ⟨1, .atom 0, by simp [clueT, Nock.evalN]⟩
+  ⟨1, .atom idAdd, by simp [clueT, Nock.evalN]⟩
 
-theorem fT_eq : fT = hint (.atom idAdd) clueT (primC .add) := rfl
+theorem fT_eq : fT = hint (.atom wildTag) clueT (primC .add) := rfl
 
 theorem sem_add : primSem .add (Nock.Field.p + 5) (Nock.Field.p + 7) = some (2 * Nock.Field.p + 12) := by
   simp [primSem, Nock.Field.p]
 
 theorem holds_add : HoldsN cAdd := by
-  have : cAdd = ⟨.cell (.atom (Nock.Field.p + 5)) (.atom (Nock.Field.p + 7)), hint (.atom idAdd) clueT (primC .add), .atom (2 * Nock.Field.p + 12)⟩ := rfl
+  have : cAdd = ⟨.cell (.atom (Nock.Field.p + 5)) (.atom (Nock.Field.p + 7)), hint (.atom wildTag) clueT (primC .add), .atom (2 * Nock.Field.p + 12)⟩ := rfl
   rw [this]
   exact holdsN_hint_iff.mpr ⟨clue_computes _, holdsN_primC (by decide) sem_add⟩
 
 theorem not_holds_addF : ¬ HoldsN cAddF := by
   intro hh
-  have h : HoldsN ⟨.cell (.atom (Nock.Field.p + 5)) (.atom (Nock.Field.p + 7)), hint (.atom idAdd) clueT (primC .add), .atom (2 * Nock.Field.p + 13)⟩ := hh
+  have h : HoldsN ⟨.cell (.atom (Nock.Field.p + 5)) (.atom (Nock.Field.p + 7)), hint (.atom wildTag) clueT (primC .add), .atom (2 * Nock.Field.p + 13)⟩ := hh
   have h1 := (holdsN_hint_iff.mp h).2
   refine not_holdsN_primC (by decide) ?_ h1
   intro x y n hs hn hres
@@ -196,7 +196,7 @@ theorem hJ_add : hNof XL "jetChipJ8" = 0 := by decide +kernel
 theorem hJ_addF : hNof XLF "jetChipJ8" = 0 := by decide +kernel
 
 /-- **`add_witness`** [kernel job, modulo the executed gate `hsh`]: every datum premise of `exec_e2e_J9AL` (`Wit9L`) holds at the executed `add`
-instance, for the claim = nockvm's run of `*[[(p+5) (p+7)] [11 [7 [1 0]] (primC add)]] = 2p+12`; the run is nockvm's, and the claim holds. -/
+instance, for the claim = nockvm's run of `*[[(p+5) (p+7)] [11 [%wild [1 7]] (primC add)]] = 2p+12`; the run is nockvm's, and the claim holds. -/
 theorem add_witness (hsh : shapeOkF famJ9AL XL = true) :
     Wit9L XL cAdd QAdd ∧ (Nock.V1J8.Gen.runX RgT.R 2 sT fT).map (·.res) = some cAdd.result ∧ HoldsN cAdd :=
   ⟨witness9L XL cAdd hsh preg_add (primsCan_of_inpCanOkL can_add) link_add QAdd

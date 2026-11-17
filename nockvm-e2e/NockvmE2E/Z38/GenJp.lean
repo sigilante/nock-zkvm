@@ -21,34 +21,40 @@ open NockvmE2E.Z38.HF1LJ (sJ fJ)
 open NockvmE2E.Z38.JpClaim (tplRes rJ fT7 fA8)
 open NockvmE2E.Z38.CatJ (catJ TN)
 
-def clueP : Noun := .cell (.atom 1) (.atom 0)
-def tC1 : NTree SkelX := mkX .s1 sJ clueP (.atom 0) []
+def clueP7 : Noun := .cell (.atom 1) (.atom 7)
+def clueP8 : Noun := .cell (.atom 1) (.atom 8)
+def tC1 : NTree SkelX := mkX .s1 sJ clueP7 (.atom 7) []
+def tC2 : NTree SkelX := mkX .s1 sJ clueP8 (.atom 8) []
 def tJ1 : NTree SkelX := mkX .s11j sJ fT7 tplRes [tC1]
-def tA1 : NTree SkelX := mkX .s11j sJ fA8 (.atom (Nock.Field.p + 8)) [tC1]
+def tA1 : NTree SkelX := mkX .s11j sJ fA8 (.atom (Nock.Field.p + 8)) [tC2]
 def tP : NTree SkelX := mkX .cons sJ fJ rJ [tJ1, tA1]
 
-theorem hit8 : Nock.Edit.GenX.jetHit catJ.toVR.R (.atom 8) (Nock.Jet.Prim.primC .add) sJ = some (.atom (Nock.Field.p + 8)) := by
+theorem hit8 : Nock.Edit.GenX.jetHit catJ.toVR.R (.atom Nock.Jet.wildTag) (.atom 8) (Nock.Jet.Prim.primC .add) sJ =
+    some (.atom (Nock.Field.p + 8)) := by
   decide +kernel
 
 theorem genP : genX catJ.toVR.R 4 sJ fJ = some (tP, rJ) := by
-  have h1 : genX catJ.toVR.R 2 sJ clueP = some (tC1, .atom 0) := by
-    simp [genX, genComputeSkeletonX, clueP, tC1, mkX]
+  have h1 : genX catJ.toVR.R 2 sJ clueP7 = some (tC1, .atom 7) := by
+    simp [genX, genComputeSkeletonX, clueP7, tC1, mkX]
+  have h2 : genX catJ.toVR.R 2 sJ clueP8 = some (tC2, .atom 8) := by
+    simp [genX, genComputeSkeletonX, clueP8, tC2, mkX]
   have hj7 := NockvmE2E.Z38.JpClaim.hit7
-  simp only [genX] at h1
-  simp only [genX, fJ, genComputeSkeletonX, clueP]
-  simp only [clueP] at h1
-  simp only [hj7, hit8]
+  simp only [genX] at h1 h2
+  simp only [genX, fJ, genComputeSkeletonX, clueP7, clueP8]
+  simp only [clueP7] at h1
+  simp only [clueP8] at h2
+  simp only [h1, h2, hj7, hit8]
   rfl
 
-theorem bfsP : bfsForest [tP] = [tP, tJ1, tA1, tC1, tC1] := by
-  simp [bfsForest, tP, tJ1, tA1, tC1, mkX]
+theorem bfsP : bfsForest [tP] = [tP, tJ1, tA1, tC1, tC2] := by
+  simp [bfsForest, tP, tJ1, tA1, tC1, tC2, mkX]
 
 
 /-- the spelled run of `jp`: the WF `bfsForest` replaced by its five-element list -/
-def Rn0 : RunX := ⟨tP, rJ, [tP, tJ1, tA1, tC1, tC1],
-  #[rowOfSkelX tP.label, rowOfSkelX tJ1.label, rowOfSkelX tA1.label, rowOfSkelX tC1.label, rowOfSkelX tC1.label]⟩
+def Rn0 : RunX := ⟨tP, rJ, [tP, tJ1, tA1, tC1, tC2],
+  #[rowOfSkelX tP.label, rowOfSkelX tJ1.label, rowOfSkelX tA1.label, rowOfSkelX tC1.label, rowOfSkelX tC2.label]⟩
 
-theorem rowsP : ComplJ8Data.rowsOfT tP = #[rowOfSkelX tP.label, rowOfSkelX tJ1.label, rowOfSkelX tA1.label, rowOfSkelX tC1.label, rowOfSkelX tC1.label] := by
+theorem rowsP : ComplJ8Data.rowsOfT tP = #[rowOfSkelX tP.label, rowOfSkelX tJ1.label, rowOfSkelX tA1.label, rowOfSkelX tC1.label, rowOfSkelX tC2.label] := by
   simp only [ComplJ8Data.rowsOfT, bfsP]; rfl
 
 theorem RnOf_eq : RnOf tP rJ = Rn0 := by
@@ -74,11 +80,13 @@ theorem gen_RS (χe : CoinsE) :
 open Nock.NockVMROM.Thm54.VclL.Handle.ComplJ9AGen (LX9)
 
 def gC9 : NTree LX9 := .node ⟨ComplJ9AGen.rowX9 tC1.label, .old, 0, 0, rowOfSkelX tC1.label⟩ []
+def gC9b : NTree LX9 := .node ⟨ComplJ9AGen.rowX9 tC2.label, .old, 0, 0, rowOfSkelX tC2.label⟩ []
 def gJ9 : NTree LX9 := .node ⟨ComplJ9AGen.rowX9 tJ1.label, .old, 0, 0, rowOfSkelX tJ1.label⟩ [gC9]
-def gA9 : NTree LX9 := .node ⟨ComplJ9AGen.rowX9 tA1.label, .old, 0, 0, rowOfSkelX tA1.label⟩ [gC9]
+def gA9 : NTree LX9 := .node ⟨ComplJ9AGen.rowX9 tA1.label, .old, 0, 0, rowOfSkelX tA1.label⟩ [gC9b]
 def gP9 : NTree LX9 := .node ⟨ComplJ9AGen.rowX9 tP.label, .old, 0, 0, rowOfSkelX tP.label⟩ [gJ9, gA9]
 
 theorem chipC1 : ComplJ9AGen.chipOf tC1.label = (.old, 0) := by decide
+theorem chipC2 : ComplJ9AGen.chipOf tC2.label = (.old, 0) := by decide
 theorem chipJ1 : ComplJ9AGen.chipOf tJ1.label = (.old, 0) := by decide
 theorem chipA1 : ComplJ9AGen.chipOf tA1.label = (.old, 0) := by decide
 theorem chipP : ComplJ9AGen.chipOf tP.label = (.old, 0) := by decide
@@ -87,37 +95,40 @@ theorem genX9T_P : ComplJ9AGen.genX9T tP = gP9 := by
   have hC : ComplJ9AGen.genX9T tC1 = gC9 := by
     show ComplJ9AGen.genX9T (.node tC1.label []) = _
     rw [ComplJ9AGen.genX9T_node, chipC1]; rfl
+  have hC2 : ComplJ9AGen.genX9T tC2 = gC9b := by
+    show ComplJ9AGen.genX9T (.node tC2.label []) = _
+    rw [ComplJ9AGen.genX9T_node, chipC2]; rfl
   have hJ : ComplJ9AGen.genX9T tJ1 = gJ9 := by
     show ComplJ9AGen.genX9T (.node tJ1.label [tC1]) = _
     rw [ComplJ9AGen.genX9T_node, chipJ1]
     simp only [List.map_cons, List.map_nil, hC, ComplJ9AGen.kid9, chipJ1, gJ9]
     simp
   have hA : ComplJ9AGen.genX9T tA1 = gA9 := by
-    show ComplJ9AGen.genX9T (.node tA1.label [tC1]) = _
+    show ComplJ9AGen.genX9T (.node tA1.label [tC2]) = _
     rw [ComplJ9AGen.genX9T_node, chipA1]
-    simp only [List.map_cons, List.map_nil, hC, ComplJ9AGen.kid9, chipA1, gA9]
+    simp only [List.map_cons, List.map_nil, hC2, ComplJ9AGen.kid9, chipA1, gA9]
     simp
   show ComplJ9AGen.genX9T (.node tP.label [tJ1, tA1]) = _
   rw [ComplJ9AGen.genX9T_node, chipP]
   simp only [List.map_cons, List.map_nil, hJ, hA, ComplJ9AGen.kid9, chipP, gP9]
   simp
 
-theorem bfs9P : bfsForest [gP9] = [gP9, gJ9, gA9, gC9, gC9] := by
-  simp [bfsForest, gP9, gJ9, gA9, gC9]
+theorem bfs9P : bfsForest [gP9] = [gP9, gJ9, gA9, gC9, gC9b] := by
+  simp [bfsForest, gP9, gJ9, gA9, gC9, gC9b]
 
 theorem rows9P : ComplJ9AGen.rowsOfT9 tP =
     #[⟨ComplJ9AGen.rowX9 tP.label, .old, 0, 0, rowOfSkelX tP.label⟩, ⟨ComplJ9AGen.rowX9 tJ1.label, .old, 0, 0, rowOfSkelX tJ1.label⟩,
       ⟨ComplJ9AGen.rowX9 tA1.label, .old, 0, 0, rowOfSkelX tA1.label⟩, ⟨ComplJ9AGen.rowX9 tC1.label, .old, 0, 0, rowOfSkelX tC1.label⟩,
-      ⟨ComplJ9AGen.rowX9 tC1.label, .old, 0, 0, rowOfSkelX tC1.label⟩] := by
+      ⟨ComplJ9AGen.rowX9 tC2.label, .old, 0, 0, rowOfSkelX tC2.label⟩] := by
   simp only [ComplJ9AGen.rowsOfT9, genX9T_P, bfs9P]; rfl
 
 theorem hR' (χe : CoinsE) : rows9J sJ fJ χe Rn0 =
     #[⟨ComplJ9AGen.rowX9 tP.label, .old, 0, 0, rowOfSkelX tP.label⟩, ⟨ComplJ9AGen.rowX9 tJ1.label, .old, 0, 0, rowOfSkelX tJ1.label⟩,
       ⟨ComplJ9AGen.rowX9 tA1.label, .old, 0, 0, rowOfSkelX tA1.label⟩, ⟨ComplJ9AGen.rowX9 tC1.label, .old, 0, 0, rowOfSkelX tC1.label⟩,
-      ⟨ComplJ9AGen.rowX9 tC1.label, .old, 0, 0, rowOfSkelX tC1.label⟩] :=
+      ⟨ComplJ9AGen.rowX9 tC2.label, .old, 0, 0, rowOfSkelX tC2.label⟩] :=
   (show rows9J sJ fJ χe Rn0 = ComplJ9AGen.rowsOfT9 tP from rfl).trans rows9P
 
-theorem hW' (χe : CoinsE) : W9J sJ fJ χe Rn0 = [gP9, gJ9, gA9, gC9, gC9] :=
+theorem hW' (χe : CoinsE) : W9J sJ fJ χe Rn0 = [gP9, gJ9, gA9, gC9, gC9b] :=
   (show W9J sJ fJ χe Rn0 = bfsForest [ComplJ9AGen.genX9T tP] from rfl).trans (by rw [genX9T_P]; exact bfs9P)
 
 
@@ -156,10 +167,10 @@ theorem sz_V (χe : CoinsE) : (RS χe).V.n = 1 := by
 theorem sz_X (χe : CoinsE) : (RS χe).X.n = 5 := by spell; rfl
 theorem readsP : ComplJ9AReads.walkReadsX9 #[⟨ComplJ9AGen.rowX9 tP.label, .old, 0, 0, rowOfSkelX tP.label⟩, ⟨ComplJ9AGen.rowX9 tJ1.label, .old, 0, 0, rowOfSkelX tJ1.label⟩,
       ⟨ComplJ9AGen.rowX9 tA1.label, .old, 0, 0, rowOfSkelX tA1.label⟩, ⟨ComplJ9AGen.rowX9 tC1.label, .old, 0, 0, rowOfSkelX tC1.label⟩,
-      ⟨ComplJ9AGen.rowX9 tC1.label, .old, 0, 0, rowOfSkelX tC1.label⟩] ++
+      ⟨ComplJ9AGen.rowX9 tC2.label, .old, 0, 0, rowOfSkelX tC2.label⟩] ++
     ComplJ9AChainsRun.axChainReadsK9 #[⟨ComplJ9AGen.rowX9 tP.label, .old, 0, 0, rowOfSkelX tP.label⟩, ⟨ComplJ9AGen.rowX9 tJ1.label, .old, 0, 0, rowOfSkelX tJ1.label⟩,
       ⟨ComplJ9AGen.rowX9 tA1.label, .old, 0, 0, rowOfSkelX tA1.label⟩, ⟨ComplJ9AGen.rowX9 tC1.label, .old, 0, 0, rowOfSkelX tC1.label⟩,
-      ⟨ComplJ9AGen.rowX9 tC1.label, .old, 0, 0, rowOfSkelX tC1.label⟩] = [] := by
+      ⟨ComplJ9AGen.rowX9 tC2.label, .old, 0, 0, rowOfSkelX tC2.label⟩] = [] := by
   decide +kernel
 
 theorem sz_W (χe : CoinsE) : (RS χe).W.n = 1 := by
@@ -200,9 +211,9 @@ theorem hon_RS (χe : CoinsE) : aluOnLK Rtt catJ.prims sJ fJ χe Rn0 = true := b
   show (!(pcallsR (List.map Prod.fst catJ.prims) Rn0.rows).isEmpty) = true
   decide +kernel
 
-theorem sz_C (χe : CoinsE) : (RS χe).C.n = 157 := by
+theorem sz_C (χe : CoinsE) : (RS χe).C.n = 159 := by
   spell
-  show (cellGenB _ _ _ _ _ _ _ _ _).1.size = 157
+  show (cellGenB _ _ _ _ _ _ _ _ _).1.size = 159
   rw [GenPortJ9AHCell.cellGenB_size]
   decide +kernel
 
@@ -220,11 +231,11 @@ theorem sz_AL (χe : CoinsE) : (RS χe).AL.n = 12 := by
 theorem fl_g (χe : CoinsE) : (RS χe).g = 1 := by spell; rfl
 theorem fl_idx (χe : CoinsE) : (RS χe).idx 7 = 6 := by spell; decide +kernel
 theorem fl_rk (χe : CoinsE) : (RS χe).rk 7 = (0, 190) := by spell; decide +kernel
-theorem fl_idxP (χe : CoinsE) : (RS χe).idxP 8 = 122 := by spell; decide +kernel
+theorem fl_idxP (χe : CoinsE) : (RS χe).idxP 8 = 124 := by spell; decide +kernel
 theorem fl_rkP (χe : CoinsE) : (RS χe).rkP 8 = (0, 43) := by spell; rfl
 
 theorem c_X (χe : CoinsE) : (compK Rtt sJ fJ χe Rn0).rows.size = 5 := by spell; rfl
-theorem c_C (χe : CoinsE) : (cRPLK Rtt catJ.prims sJ fJ χe Rn0).1.size = 157 := by
+theorem c_C (χe : CoinsE) : (cRPLK Rtt catJ.prims sJ fJ χe Rn0).1.size = 159 := by
   unfold cRPLK
   spell
   rw [GenPortJ9AHCell.cellGenB_size]
@@ -246,17 +257,17 @@ theorem c_SP (χe : CoinsE) : (sRPK Rtt sJ fJ χe Rn0).1.size = 1 := by spell; r
 theorem c_lay (χe : CoinsE) : (layLK Rtt catJ.prims sJ fJ χe Rn0).length = 17 := by spell; decide +kernel
 theorem c_AL (χe : CoinsE) : (lRPLK Rtt catJ.prims sJ fJ χe Rn0).1.size = 12 := sz_AL χe
 
-theorem m_RS (χe : CoinsE) : mLK Rtt catJ.prims sJ fJ χe Rn0 = 157 := by
+theorem m_RS (χe : CoinsE) : mLK Rtt catJ.prims sJ fJ χe Rn0 = 159 := by
   unfold mLK
   rw [c_X, c_C, c_W, c_A, c_V, c_AX, c_SP, c_lay, c_AL]
   decide
 
-theorem BLK_RS (χe : CoinsE) : BLK Rtt catJ.prims sJ fJ χe Rn0 = 314 := by
+theorem BLK_RS (χe : CoinsE) : BLK Rtt catJ.prims sJ fJ χe Rn0 = 318 := by
   unfold BLK
   rw [m_RS]
   decide
 
-theorem rows_RS (χe : CoinsE) : (RS χe).toRowsL = ⟨⟨budget 157, 314, 314⟩, 314⟩ := by
+theorem rows_RS (χe : CoinsE) : (RS χe).toRowsL = ⟨⟨budget 159, 318, 318⟩, 318⟩ := by
   show (⟨⟨budget (mLK Rtt catJ.prims sJ fJ χe Rn0), BLK Rtt catJ.prims sJ fJ χe Rn0, BLK Rtt catJ.prims sJ fJ χe Rn0⟩,
     BLK Rtt catJ.prims sJ fJ χe Rn0⟩ : Nock.NockVMROM.Thm54.VclL.Handle.RealIOJ9AL.RowsJ9AL) = _
   rw [m_RS, BLK_RS]

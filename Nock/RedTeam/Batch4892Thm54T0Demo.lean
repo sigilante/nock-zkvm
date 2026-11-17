@@ -304,7 +304,7 @@ open Classical in
 every hypothesis discharged.**  The jet is the compiled template `TN` (input `x` a field element at axis 2, input
 `d` a natural number at axis 3, output the list `[x*x, d]`) over the Goldilocks prime, run on the subject
 `[3 (p+5)]`.  For this run, `AcceptsJ9A` accepts at every good coin, the fraction of coins that are not good is at
-most `ε_c`, the trace family is staged (`StJ9A`), the claim `*[[3 (p+5)] [11 [7 [1 0]] (compile p TN)]] =
+most `ε_c`, the trace family is staged (`StJ9A`), the claim `*[[3 (p+5)] [11 [%wild [1 7]] (compile p TN)]] =
 [9 [(p+5) 0]]` holds (`HoldsN`), and, as `|K| = cK`, `ε_c < 2^-120` with an accepting coin. -/
 theorem complJ9A_closed_of_N :
     (∀ χ, BN.Good χ → AcceptsJ9A.AcceptsJ9A deltaF powerBasis3 BN.Pb RgN.R

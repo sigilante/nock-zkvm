@@ -8,7 +8,7 @@ import Nock.RedTeam.Batch4939Thm54J9ALTplJetToy
 says: at the generator's good coin, for every common orbit `⟨h, ω⟩` with `orderOf ω = 3 * 2^h` and
 `nRowsTpl ≤ 3 * 2^h`, the record is valid and `AcceptsJ9AL`. We take `h = XJ.k + 1` and `ω = ofU64 XJ.hGen`, so the
 orbit is exactly `orbSh XJ`. The order comes from the executed shape gate (`hord_jp`), and the row bound from
-`nRowsTpl = 157 ≤ 768`. Batch4939's `catJ`, `sJ` and `fJP` are literal copies of ours (Z38/CatJ.lean, Z38/HF1LJ.lean),
+`nRowsTpl = 159 ≤ 768`. Batch4939's `catJ`, `sJ` and `fJP` are literal copies of ours (Z38/CatJ.lean, Z38/HF1LJ.lean),
 and the bridge checks they agree by `rfl`. Not zero-knowledge.
 -/
 

@@ -7,7 +7,7 @@
   `axisChipJ9` / `splitChipJ9` when on), `aluChipJ9.trace.json` when `aluOn`, `coins.json`, `pubeq.json` (J-9 A fields + `pubsL`,
   `prims[] = {id, code, idx, hi, lo}` with `code = RealIOJ9AL.primCode`, and the key-2 big-atom records of `claim`).  Also writes the ALU chip document
   `OUT/j9al_aluChipJ9.json` (`aluSpec`, with the y-power derived slots 41..106 as coins (17, 18)).
-  Programs: `add` = Batch4921/4936 (`*[[(p+5) (p+7)] [11 [7 [1 0]] (primC add)]]`, fuel 2), `mul` = Batch4932 (`2^70+3`, `2^65+11`, fuel 2),
+  Programs: `add` = Batch4921/4936 (`*[[(p+5) (p+7)] [11 [%wild [1 7]] (primC add)]]`, fuel 2), `mul` = Batch4932 (`2^70+3`, `2^65+11`, fuel 2),
   `toy` = J-9 A toy (walk dispatch, prims [], aluOn false), `absent` = `*[[(p+5) 0] [0 2]]` (prims [], chips off).
   Untrusted tooling; no theorem.  The dump code follows nockvm `TraceDemo/J9ALEmit.lean` (cross-check target), the doc code `J9AEmitMain.lean`.
 -/

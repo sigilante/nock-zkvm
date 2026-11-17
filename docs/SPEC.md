@@ -163,8 +163,11 @@ in this tree:
 ### 1.5 Execution trees (`Nock/Edit/GenX.lean`, `Nock/Edit/SemanticsX.lean`)
 The honest prover runs the generator `genX R fuel s f : Option (NTree SkelX × Noun)`. One node per evaluation step
 in one of the 17 states of `StateX`: `s0 … s9`, `cons`, `s10` (edit), `s10L` (edit chain level), `s10T` (edit chain
-terminal), `s11s` (static hint), `s11d` (dynamic hint), `s11j` (jet hint). A jet hint whose id is registered with
-formula `c` and whose template relation holds is an `s11j` node with one child (the clue); the body is not expanded.
+terminal), `s11s` (static hint), `s11d` (dynamic hint), `s11j` (jet hint). A jet hint is a dynamic hint
+`[11 [%wild clue] body]` whose tag is the atom `%wild` (`wildTag`, `Nock/Jet/Wild.lean`) and whose clue evaluates to an atom
+`id`, the jet key. When `id` is registered with formula `c = body` and the template relation holds, the hint is an `s11j`
+node with one child (the clue); the body is not expanded. Any other tag is an ordinary hint. The canonical spelling is
+`wildCall id body = [11 [%wild [1 id]] body]`.
 - `genX_sound (hR : R.Faithful)`: `genX R n s f = some (t, r) → HoldsN ⟨s, f, r⟩`.
 - `genX_complete (hR : R.Faithful)`: `evalN n s f = some r → ∃ t, genX R n s f = some (t, r)`.
 - `edit_of_slots`: if `old` and `e` agree on every off-path sibling along axis `a` (`ChainOK a old e`) and
@@ -304,8 +307,10 @@ Gates (all degree `≤ 4`: `gatesHX_degree`):
 - op 10: `s10` reads axis `a < p` (small), handles axis 1 by `z1`, and reads `slot a e = new` through the path
   balance; `s10L` rows (atom formula `a_k ≠ 1`, `a_k = 2v + β`, sibling axis `ax2 = a_k + 1 − 2β`) check sibling
   agreement between `old` and `e`; `s10T` is the terminal (formula `1`).
-- op 11: `s11s` (static, atom tag), `s11d` (dynamic: clue and body children), `s11j` (jet: id small, one child, the
-  clue); an `s11j` row consumes the jet record `(id, h_c, h_S, h_E, 3)` from the service balance.
+- op 11: `s11s` (static, atom tag), `s11d` (dynamic: clue and body children), `s11j` (jet: tag value `%wild`, one child,
+  the clue, whose value `sf1` is a small atom, the id); an `s11j` row consumes the jet record `(id, h_c, h_S, h_E, 3)` with
+  `id = sf1.v` from the service balance (`ChipHX.s11j_wild`; the tag is the atom `%wild` when `wildTag < p`,
+  `WildTagX.s11j_tag`).
 - Slots (state-disjoint entries, `slotsX_disjoint`): `slot0` decodes `f` (export record of the formula handle);
   `slot1` decodes `f_t` on states `s2`, `s5`–`s9`, `s10`, `s11s`, `s11d`, `s11j`, the op-0 read, and the op-4 slow increment consume;
   `slot2` holds five decode/read entries of the base layout, the `f_th` decode on states `s10`, `s11d`, `s11j`, and the
@@ -508,7 +513,7 @@ template. The J-9 B checker is `Nock.V1J9.Check9.checkJ9` with `checkJ9_iff`.
 The fixture `nockvm-e2e/fixtures/j9al-add/` is one J-9 AL run carried through every layer; its files are listed with hashes
 in `SHA256SUMS` there.
 
-- **Claim.** Subject `[(p+5) (p+7)]`, formula `[11 [7 [1 0]] (primC add)]` (a jet hint with id `7` whose body is the formula of
+- **Claim.** Subject `[(p+5) (p+7)]`, formula `[11 [%wild [1 7]] (primC add)]` (a jet hint with id `7` whose body is the formula of
   the primitive `add`, §6.1), result `2p + 12`, fuel 2 (`nockvm-e2e/NockvmE2E/Exec/J9ALConv.lean:58`). Both operands are big
   atoms (`≥ p`), so the run uses the atom table and the ALU. The same run is the library's non-vacuity witness
   `complJ9AL_toy` (`Batch4921`) and executable link `genLink_toy` (`Batch4936`) (§6.9) [kernel].
@@ -648,7 +653,7 @@ Hypotheses:
 | binder | meaning |
 |---|---|
 | `hpG : p = Nock.Atoms.p` | Goldilocks |
-| `hax : ProgAxOK p t` | on every row: op-0 and op-9 axes, op-10 edit axes and jet ids are `< p`; an `s10L` level `a` has `a + 1 < p` |
+| `hax : ProgAxOK p t` | on every row: op-0 and op-9 axes, op-10 edit axes, jet tags and jet ids (clue values) are `< p`; an `s10L` level `a` has `a + 1 < p` |
 | `hop5 : ProgOp5OK p t` | on every op-5 row, the axis of the first difference of the compared nouns is `< p` |
 | `hclA` | every leaf atom of the claim's subject, formula and result is `< p` |
 | `hleaf : RootsLeafOK roots` | every walked root has `≤ 2^109` leaves |
@@ -671,7 +676,7 @@ Each witness is a kernel-checked instance at `K = KC`, `δ = deltaF`, `b = power
 
 | theorem | instance | content |
 |---|---|---|
-| `Nock.RedTeam.Batch4777.nvJet_final_const` | `Ijet`: registry `[7 ↦ tinyT]` (`tinyT x y = x + y` on field atoms), subject `[0 [[5 7] 0]]`, program `[11 [7 [1 0]] compile tinyT]` | `AcceptsJ8V` holds at the instance's coins at `r = cornerC`, and `probJ8V_final_clean`'s conclusion holds at the constant trace map |
+| `Nock.RedTeam.Batch4777.nvJet_final_const` | `Ijet`: registry `[7 ↦ tinyT]` (`tinyT x y = x + y` on field atoms), subject `[0 [[5 7] 0]]`, program `[11 [%wild [1 7]] compile tinyT]` | `AcceptsJ8V` holds at the instance's coins at `r = cornerC`, and `probJ8V_final_clean`'s conclusion holds at the constant trace map |
 | `Nock.RedTeam.Batch4776.nvJet_hyps_final_clean` | `Ijet` | the same for any staged `Q` (instances `CharP` taken as arguments) |
 | `Nock.RedTeam.Batch4779.eq5_final_const` | `Ine`: `*[p−1 [5 [4 [0 1]] [4 [4 [0 1]]]]]` (op 5 on big atoms `p`, `p+1`) | `AcceptsJ8V` with `0 < krootsV` (atom walk present), and the conclusion of `probJ8V_final_clean` |
 | `Nock.RedTeam.Batch4812.probJ9B_nonvacuous_demo` | `c9 = *[[(p+5) 0] [0 2]] = p+5` | `AcceptsJ9V` at `cornerC`, `HoldsN c9`, `claimBigs p c9 = [2]`, every numeric binder of `probJ9B_final_clean` |
@@ -759,7 +764,7 @@ Binders: those of `complJ9B_closed` (§4.3) with `hax`, `hwalk`, `h31` replaced 
 
 | binder | meaning |
 |---|---|
-| `hax9 : ProgAxOK9A p t` | on every row (`ComplJ9ABinders.lean::AxRowX9A`): op-0 axes, op-10 edit axes and `s10L` levels `+1` are `< p` or within the cap `AxCap` (at most 62 limbs of `2^32`); op-9 axes and jet ids `< p`. Implied by J-9 B's `hax` (`ComplJ9ABinders.lean::progAxOK9A_of_progAxOK`) |
+| `hax9 : ProgAxOK9A p t` | on every row (`ComplJ9ABinders.lean::AxRowX9A`): op-0 axes, op-10 edit axes and `s10L` levels `+1` are `< p` or within the cap `AxCap` (at most 62 limbs of `2^32`); op-9 axes, jet tags and jet ids (clue values) `< p`. Implied by J-9 B's `hax` (`ComplJ9ABinders.lean::progAxOK9A_of_progAxOK`) |
 | `hwalk9 : WalkDepthOK9A (rowsOfT t)` | every path read of the J-9 A cell walk has depth `≤ 61` (implied by J-9 B's) |
 | `h31A : Rows31A DA` | every table, including the axis and split tables, has `≤ 2^31` rows (`ComplJ9ARun.lean::Rows31A`) |
 
@@ -850,7 +855,7 @@ verbatim. `Nock/Jet/PrimJ9.lean` has namespace `Jet.Prim.`.
 - `primSpec_faithful (op : PrimOp) : (primSpec op).Faithful` and `primSpec_complete`, for all seven operations, no side hypothesis.
 - `VerifiedRegistry.addPrim V n op := V.add n (primSpec op) (primSpec_faithful op)`.
 
-A call of a primitive is an ordinary jet hint `[11 [id clue] primC op]` (§1.3). In J-9 AL it is not a J-chip row: the ALU chip
+A call of a primitive is an ordinary jet hint `[11 [%wild [1 id]] primC op]` (§1.3). In J-9 AL it is not a J-chip row: the ALU chip
 checks it, and the J chip sees only the template-registered ids (§6.5).
 
 <sub>Sources (generated): `PrimOp` Nock/Jet/PrimJ9.lean:29; `primSem` Nock/Jet/PrimJ9.lean:33; `primTemplate` Nock/Jet/PrimJ9.lean:58; `primC` Nock/Jet/PrimJ9.lean:117; `primSpec` Nock/Jet/PrimJ9.lean:126; `primSpec_faithful` Nock/Jet/PrimJ9.lean:560; `primSpec_complete` Nock/Jet/PrimJ9.lean:628; `addPrim` Nock/Jet/PrimJ9.lean:632</sub>
@@ -1034,7 +1039,7 @@ Each is a kernel-checked instance at `K = KC`, `δ = deltaF`, `b = powerBasis3`,
 
 | theorem | content |
 |---|---|
-| `Nock.RedTeam.Batch4921.complJ9AL_toy`, `complJ9AL_toy_figure` | `*[[(p+5) (p+7)] [11 [id_add [1 0]] (primC add)]] = 2p+12` over `addPrims empty [(id_add, add)]`: one `add` call on two big atoms, ALU on; `complJ9AL_closed` with every binder discharged; `ε_c < 2^-120` and an accepting coin |
+| `Nock.RedTeam.Batch4921.complJ9AL_toy`, `complJ9AL_toy_figure` | `*[[(p+5) (p+7)] [11 [%wild [1 id_add]] (primC add)]] = 2p+12` over `addPrims empty [(id_add, add)]`: one `add` call on two big atoms, ALU on; `complJ9AL_closed` with every binder discharged; `ε_c < 2^-120` and an accepting coin |
 | `Nock.RedTeam.Batch4922.false_claim_rejected_AL` and companions | the soundness bound read at a false claim, with the in-regime binders gathered in `RegimeAL`; the label-equal false claim (`labelJ9_cTrue_cFalse`, `cFalse_rejected_AL`); the atom wrap `v` vs `v + p` (`labelJ9_wrap_ne`, `wrap_claim_rejected_AL`); padding by `p` copies (`pinRecsP_length`, `censusP_length`, `prims_len_le`, `bus_len_lt_p`); post-coin record lists are coin-free along `StJ9AL` (`postcoin_lists_AL`, `aluFp_staged`); and structural rejections of out-of-regime data (`nAS_out_rejected`, `rows_out_rejected`, `nL_out_rejected`, `axOff_forged_rejected`, `spOff_forged_rejected`, `aluOff_forged_rejected`, `aluOff_prims_rejected`, `aluOn_forces_chip`, `primUnreg_rejected`, `primId_in_regs_rejected`, `primId_dup_rejected`, `primId_out_rejected`, `lenCP_out_rejected`) |
 | `Nock.RedTeam.Batch4923.opConfusion_rejected` and the `nc*` claims | 23 concrete false claims (primitive calls, a cell operand, and two Nock increments on big atoms), each with `¬ HoldsN` (`nc3a_wrap_add_false`, `nc4_product_split_wrap_false`, `nc5a_dropped_top_carry_false`, `nc8a_sub_underflow_wrap_false`, `nc9a_div_by_zero_false`, `nc9c_remainder_ge_divisor_false`, `nc10a_forged_lt_false`, `nc11_column_overflow_false`, `nc12a_missing_pair_false`, and others), positive controls for the true calls (`ctl_add`, `ctl_lt_big`, `ctl_mul_big`, …) and `*_rejected_AL`: `Pr < 2^-155` at every in-regime datum. `opConfusion_rejected`: a primitive table entry whose id is registered at a different operation's spec has no accepting instance. These are the soundness bound read at each claim; they do not locate the gate that fires |
 | `Nock.RedTeam.Batch4930.acceptsJ9AL_withPrims` | an accepting instance of `AcceptsJ9AL` with the ALU on and `prims = [(id_add, add)]`, and the claim holds |
@@ -1064,7 +1069,7 @@ Module `Nock/RedTeam/Batch4939Thm54J9ALTplJetToy.lean`.
 
 The run is hypothesis-free, at `K = KC`, `δ = deltaF`, `b = powerBasis3`. It is the program `jp` (namespace `Nock.RedTeam.Batch4939`):
 - subject `sJ = [3 (p+5)]`;
-- formula `fJP = [[11 [7 [1 0]] (compile p TN)] [11 [8 [1 0]] (primC add)]]`;
+- formula `fJP = [[11 [%wild [1 7]] (compile p TN)] [11 [%wild [1 8]] (primC add)]]`;
 - fuel `4`;
 - the checked registry `catJ` (`CheckedRegP`): the compiled template `TN` at id `7`, and the primitive `add` at id `8` (`catJ.prims = [(8, add)]`);
 - templates `rtP catJ.toCR.Rt catJ.prims`.

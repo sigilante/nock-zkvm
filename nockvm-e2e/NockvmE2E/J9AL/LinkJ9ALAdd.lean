@@ -1,7 +1,7 @@
 /-
 `HF1L` discharged at the executed add instance, and `add_air` with only the executed gate `hsh` left.
 
-  1. `hF1L_of`: `HF1L XI` for ANY instance whose orbit is admissible (`shapeOkF` gives the order of `hGen`) and whose row bound `116 <= 3 * 2^(k+1)`
+  1. `hF1L_of`: `HF1L XI` for ANY instance whose orbit is admissible (`shapeOkF` gives the order of `hGen`) and whose row bound `117 <= 3 * 2^(k+1)`
      holds, by ONE application of nock's `genJ9ALXJ_honest_at'` at Batch4936's record (`genT_L`-shaped `gen_RS`), a good coin from `exists_good_coinEJL`,
      and `OrbAdmL' (RS χe) (orbSh XI)` (sizes from `LinkJ9ALToy.sz_*`).
   2. `addShape_add`: `AddShape XL`, one `decide +kernel` per field (never over the instance).
@@ -53,8 +53,8 @@ theorem fits_sh (XI : ExecInst) (hsh : shapeOkF famJ9AL XI = true) (q : Nock.V1J
   rw [Nock.TraceGenExe.Gold.ofU64_toZ]
   exact orbit_order_of_shapeF hsh
 
-/-- **`hF1L_of`** [kernel job]: `HF1L XI` from the admissibility of the shared orbit (`hsh`) and the row bound `116 <= 3 * 2^(k+1)`. -/
-theorem hF1L_of (XI : ExecInst) (hsh : shapeOkF famJ9AL XI = true) (hk : 116 ≤ 3 * 2 ^ (XI.k + 1)) : HF1L XI := by
+/-- **`hF1L_of`** [kernel job]: `HF1L XI` from the admissibility of the shared orbit (`hsh`) and the row bound `117 <= 3 * 2^(k+1)`. -/
+theorem hF1L_of (XI : ExecInst) (hsh : shapeOkF famJ9AL XI = true) (hk : 117 ≤ 3 * 2 ^ (XI.k + 1)) : HF1L XI := by
   obtain ⟨-, hfrac, -, -, hfig⟩ := complJ9AL_toy
   obtain ⟨hlt, -⟩ := hfig card_KC
   obtain ⟨χe, hχ⟩ := Nock.NockVMROM.Thm54.VclL.Handle.GenPortJ9ALHGoodCoinJ.exists_good_coinEJL BL hfrac hlt
@@ -74,13 +74,13 @@ theorem hF1L_of (XI : ExecInst) (hsh : shapeOkF famJ9AL XI = true) (hk : 116 ≤
 
 open NockvmE2E.J9AL.E2EJ9ALToy (XL facts_add hJ_add preg_add)
 
-theorem k_add : 116 ≤ 3 * 2 ^ (XL.k + 1) := by decide +kernel
+theorem k_add : 117 ≤ 3 * 2 ^ (XL.k + 1) := by decide +kernel
 
 /-- **`hF1L_add`** [kernel job, modulo the executed gate `hsh`]: `HF1L` at the executed add instance. -/
 theorem hF1L_add (hsh : shapeOkF famJ9AL XL = true) : HF1L XL := hF1L_of XL hsh k_add
 
 theorem sh_X : hNof XL "computeChipVCLHX9" = 2 := by decide +kernel
-theorem sh_C : hNof XL "cellChipHQKW" = 116 := by decide +kernel
+theorem sh_C : hNof XL "cellChipHQKW" = 117 := by decide +kernel
 theorem sh_W : hNof XL "walkChipJ8" = 1 := by decide +kernel
 theorem sh_A : hNof XL "atomChipHQL" = 5 := by decide +kernel
 theorem sh_V : nOpt XL "walkChipHQK" = 1 := by decide +kernel

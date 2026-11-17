@@ -33,18 +33,18 @@ def toyF : Noun := .cell (.cell (.atom 0) (.atom (2 ^ 64 - 1))) (.cell (.atom 0)
 def absS : Noun := .cell (.atom (Nock.Field.p + 5)) (.atom 0)
 def absF : Noun := .cell (.atom 0) (.atom 2)
 
-/-- `*[[a b] [11 [7 [1 0]] (primC op)]]` with the primitive `op` registered at id 7. -/
+/-- `*[[a b] [11 [%wild [1 7]] (primC op)]]` with the primitive `op` registered at id 7. -/
 def primProg (op : Nock.Jet.Prim.PrimOp) (a b : ℕ) : Noun × Noun :=
   (.cell (.atom a) (.atom b),
-   .cell (.atom 11) (.cell (.cell (.atom 7) (.cell (.atom 1) (.atom 0))) (Nock.Jet.Prim.primC op)))
+   .cell (.atom 11) (.cell (.cell (.atom Nock.Jet.wildTag) (.cell (.atom 1) (.atom 7))) (Nock.Jet.Prim.primC op)))
 
 /-- program `jp`: subject `[3 (p+5)]`, formula `[fJ fP]` = one template call (id 7, `TN`, as Batch4892 `fJ`) and one big-atom `add`
 (id 8).  Only meaningful in the catalogue-registry mode (`--reg-catj`, registry `catJ`). -/
 def jpProg : Noun × Noun :=
   (.cell (.atom 3) (.atom (Nock.Field.p + 5)),
-   .cell (.cell (.atom 11) (.cell (.cell (.atom 7) (.cell (.atom 1) (.atom 0)))
+   .cell (.cell (.atom 11) (.cell (.cell (.atom Nock.Jet.wildTag) (.cell (.atom 1) (.atom 7)))
             (Nock.Jet.Autogen.compile Nock.Field.p NockvmE2E.Z38.CatJ.TN)))
-         (.cell (.atom 11) (.cell (.cell (.atom 8) (.cell (.atom 1) (.atom 0))) (Nock.Jet.Prim.primC .add))))
+         (.cell (.atom 11) (.cell (.cell (.atom Nock.Jet.wildTag) (.cell (.atom 1) (.atom 8))) (Nock.Jet.Prim.primC .add))))
 
 /-- registry mode: the registry `R` and template table `Rt` handed to `genJ9ALXJ`.  Default (`catj = false`): `addPrims empty prims`,
 `rtP (fun _ => trivTpl) prims` (unchanged); `catj = true`: `catJ.toVR.R`, `rtP catJ.toCR.Rt prims`. -/

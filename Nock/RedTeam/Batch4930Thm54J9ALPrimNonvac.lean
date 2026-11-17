@@ -29,7 +29,7 @@ theorem BL_prims : BL.Pb.prims = [(idAdd, PrimOp.add)] := by
 
 open Classical in
 /-- **`acceptsJ9AL_withPrims`: the J-9 AL acceptance predicate is satisfiable with the ALU on and a primitive called.**
-At the claim `*[[(p+5) (p+7)] [11 [id_add [1 0]] (primC add)]] = 2p+12` there are a coin and a message at which
+At the claim `*[[(p+5) (p+7)] [11 [%wild [1 id_add]] (primC add)]] = 2p+12` there are a coin and a message at which
 `AcceptsJ9AL` accepts, with the ALU on (`aluOn = true`) and the primitive list exactly `[(id_add, add)]` (so
 non-empty); and the claim holds (`HoldsN`). -/
 theorem acceptsJ9AL_withPrims :

@@ -17,7 +17,7 @@ import Nock.NockVMROM.Thm54.VclL.Handle.CheckedRegistryP
   The primitive table is empty by default (so `aluOn = false`, no `aluChipJ9` trace).  Each `prims` entry of
   `pubeq.json` carries `code` = `RealIOJ9AL.primCode` of the op (add 1, sub 2, lt 3, dec 0, mul 4, div 5, mod 6).
   Optional prims mode (third CLI argument `add` | `mul`; default unchanged): the program is the J-9 AL toy
-  `*[[a b] [11 [7 [1 0]] (primC op]]` over `addPrims empty [(7, op)]` (`add`: a = p+5, b = p+7, as `Batch4936`'s toy;
+  `*[[a b] [11 [%wild [1 7]] (primC op]]` over `addPrims empty [(7, op)]` (`add`: a = p+5, b = p+7, as `Batch4936`'s toy;
   `mul`: a = 2^70+3, b = 2^65+11, three limbs, as `Batch4932`'s demo), written to `trace-<prog>` with `prog` =
   `prim-add` / `prim-mul`, so the ALU chip is on and `aluChipJ9.trace.json` is emitted.
   Executable evidence only; this file is unverified glue, not kernel-checked.
