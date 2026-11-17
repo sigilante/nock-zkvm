@@ -154,6 +154,32 @@ regenerated with that tool, not edited.
 
 ### Status
 
+Checked on this branch (Lean 4.35, two threads):
+
+- **Headline set.** Every module imported by
+  `scripts/delivery-axioms.lean` builds (10,527 jobs). The script's
+  123 printed axiom footprints are identical, theorem by theorem, to
+  REL-5.4's: 63 + 59 at `[propext, Classical.choice, Quot.sound]`,
+  `pub_before_first_squeeze` at `[propext, Quot.sound]`, no
+  `sorryAx`.
+- **Outside the headline set.** The 22 library modules that name a
+  changed definition and are not in the headline closure build, as
+  do `nockvm-j8dump`, `nockvm-d5red` and `nockvm-j9alemit` (8,596
+  jobs). Not built: the rest of the library (about 1,400 modules
+  outside both sets, including the 48 GB module), which names none
+  of the changed definitions.
+- **Native checker.** `nockvm-j8dump jet` generates the tiny jetted
+  program in the new form and its native `checkJ8` accepts it. The
+  checker takes its gates from `ChipHX`, so it checks the new gates.
+
+**Measured cost.** The clue `[1 id]` is a new cell; the earlier
+`[1 0]` was hash-consed with an identical cell inside the compiled
+template and cost nothing. So the cell table grows by one row per
+distinct jet id in a program: 122 → 123 for the one-call program
+(`Batch4771`), 157 → 159 for `jp`'s twin with two ids (`Batch4939`).
+Columns, decoding and public-input shape are unchanged. Proof size
+and verifier time are not measured; they need layer 3.
+
 ## Layer 3: the end-to-end package (not started)
 
 The chip appears in `nockvm-e2e/` as kernel-checked literals. Two

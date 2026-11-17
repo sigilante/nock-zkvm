@@ -4,7 +4,7 @@
 The run (Goldilocks `p`, `K = KC`, `δ = deltaF`, `b = powerBasis3`):
   * template `T1`: one argument at axis `3` (type `F`), body `var 0` (the jet returns the subject's tail);
   * registry `RgB := ofCompiled p _ (fun _ => T1) [7]` (the jet `7 ↦ compile p T1`);
-  * claim `*[3 [8 [4 [1 (p−1)]] [11 [7 [1 0]] (compile p T1)]]] = 3`.
+  * claim `*[3 [8 [4 [1 (p−1)]] [11 [%wild [1 7]] (compile p T1)]]] = 3`.
 
   The `8` pushes the increment `(p − 1) + 1 = p` (a BIG atom that ARISES MID-RUN: every claim leaf is `< p`, so
   `hclA` holds) onto the subject; the jet is then called on the subject `[p 3]`.  Its argument axis `3` walks the
@@ -58,23 +58,24 @@ def sJ : Noun := .cell (.atom Nock.Field.p) sB
 def fQ : Noun := .cell (.atom 1) (.atom (Nock.Field.p - 1))
 /-- `[4 [1 (p − 1)]]`: the increment to the big atom `p`. -/
 def fI : Noun := .cell (.atom 4) fQ
-/-- The clue `[1 0]`. -/
-def fC : Noun := .cell (.atom 1) (.atom 0)
-/-- `[11 [7 [1 0]] (compile p T1)]`: the jet call. -/
-def fJ : Noun := .cell (.atom 11) (.cell (.cell (.atom 7) fC) (compile Nock.Field.p T1))
+/-- The clue `[1 7]`: its value is the jet key `7`. -/
+def fC : Noun := .cell (.atom 1) (.atom 7)
+/-- `[11 [%wild [1 7]] (compile p T1)]`: the jet call. -/
+def fJ : Noun := .cell (.atom 11) (.cell (.cell (.atom Nock.Jet.wildTag) fC) (compile Nock.Field.p T1))
 /-- The claim formula `[8 [4 [1 (p−1)]] fJ]`. -/
 def fB : Noun := .cell (.atom 8) (.cell fI fJ)
 
 def tQ : NTree SkelX := mkX .s1 sB fQ (.atom (Nock.Field.p - 1)) []
 def tI : NTree SkelX := mkX .s4 sB fI (.atom Nock.Field.p) [tQ]
-def tC : NTree SkelX := mkX .s1 sJ fC (.atom 0) []
+def tC : NTree SkelX := mkX .s1 sJ fC (.atom 7) []
 def tJ : NTree SkelX := mkX .s11j sJ fJ sB [tC]
 /-- The generated tree. -/
 def tB : NTree SkelX := mkX .s8 sB fB sB [tJ, tI]
 
-theorem jetB : jetHit RgB.R (.atom 7) (compile Nock.Field.p T1) sJ = some sB := by decide +kernel
+theorem jetB : jetHit RgB.R (.atom Nock.Jet.wildTag) (.atom 7) (compile Nock.Field.p T1) sJ = some sB := by
+  decide +kernel
 
-theorem gC : genX RgB.R 1 sJ fC = some (tC, .atom 0) := rfl
+theorem gC : genX RgB.R 1 sJ fC = some (tC, .atom 7) := rfl
 
 theorem gI : genX RgB.R 2 sB fI = some (tI, .atom Nock.Field.p) := rfl
 
@@ -235,7 +236,7 @@ theorem haxB : ComplJ8.ProgAxOK Nock.Field.p tB := by
   rcases inT_B u hu with rfl | rfl | rfl | rfl | rfl
   all_goals
     unfold ComplJ8.AxRowX
-    simp [rowOfSkelX, tB, tJ, tI, tC, tQ, mkX, fJ, fB, fI, fC, fQ, VclL.hdN, VclL.tlN]
+    simp [rowOfSkelX, tB, tJ, tI, tC, tQ, mkX, fJ, fB, fI, fC, fQ, VclL.hdN, VclL.tlN, kidE, SkelX.row]
   all_goals decide
 
 theorem hop5B : ComplJ8.ProgOp5OK Nock.Field.p tB := by
@@ -248,7 +249,7 @@ theorem hop5B : ComplJ8.ProgOp5OK Nock.Field.p tB := by
 theorem calledB (id : ℕ) (h : id ∈ ComplJ8Jet.CalledIds tB) : id = 7 := by
   obtain ⟨u, hu, hst, hid⟩ := h
   rcases inT_B u hu with rfl | rfl | rfl | rfl | rfl
-  all_goals simp [rowOfSkelX, tB, tJ, tI, tC, tQ, mkX, fJ, VclL.hdN, VclL.tlN] at hst hid
+  all_goals simp [rowOfSkelX, tB, tJ, tI, tC, tQ, mkX, fJ, VclL.hdN, VclL.tlN, kidE, SkelX.row] at hst hid
   all_goals omega
 
 theorem hRtB : ∀ id ∈ ComplJ8Jet.CalledIds tB,
@@ -307,7 +308,7 @@ abbrev BB := ComplJ8Closed.BRunA deltaF powerBasis3 RtB genB rfl h31B
 
 open Classical in
 /-- **`complJ8_closed` (no `hsib`, no `hsubj`) at the jet-bearing big-sibling run**
-`*[3 [8 [4 [1 (p−1)]] [11 [7 [1 0]] (compile p T1)]]] = 3`, every binder discharged. -/
+`*[3 [8 [4 [1 (p−1)]] [11 [%wild [1 7]] (compile p T1)]]] = 3`, every binder discharged. -/
 theorem complJ8_closed_bigSib :
     (∀ χ, BB.Good χ → AcceptsJ8V.AcceptsJ8V deltaF powerBasis3 BB.Pb RgB.R
       (ComplJ8.cJ sB fB sB) χ (BB.M χ) (BB.tr χ) BB.rows BB.g) ∧
