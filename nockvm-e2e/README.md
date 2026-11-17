@@ -165,7 +165,8 @@ Rejected input: `--subject "[41 7"` gives `ERROR: --subject: cannot parse '[41 7
 A crashing program (`--subject "[5 5]" --formula "[2 [0 1] [1 [4 [0 1]]]]"`) gives `ERROR: LABEL: the Nock run did not finish (crash, or more than fuel 1000 steps; try --fuel N with a larger N)`.
 
 Jet example (executed; `--print-primc add` gives the primitive's formula; a jet call is `[11 [%wild [1 id]] body]`, and
-`%wild` is the atom `1684826487`; verify ACCEPT, 107 s for the five steps on an Apple-silicon Mac):
+`%wild` is the atom `1684826487`; verify ACCEPT; on an Apple-silicon Mac the five steps were run by hand, 107 s in
+total, because of the macOS note below):
 
 ```
 scripts/run-free.sh ex2 --subject "[4294967301 4294967303]" --prims 7:add --fuel 2 \
@@ -174,7 +175,9 @@ scripts/run-free.sh ex2 --subject "[4294967301 4294967303]" --prims 7:add --fuel
 ```
 
 On macOS `nockvm-e2e-j9al-prove` writes every output and then exits 1, because its peak-memory report reads
-`/proc/self/status`; `run-free.sh` stops there. Run the remaining steps (vk-setup, fix-prove, verify) by hand.
+`/proc/self/status`; `run-free.sh` stops there. The exit code then says nothing about the proof: the prover's own
+verdict line is not printed either. Check that the outputs were written and run the remaining steps (vk-setup,
+fix-prove, verify) by hand.
 
 Chip-literal error (executed): `kroots` = number of distinct subjects read at axis ≥ 2; `--subject "[4 5]" --formula "[7 [[0 3] [0 2]] [0 2]]"`
 reads in two subjects, so `kroots` 2, which has no literal:

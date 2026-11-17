@@ -104,8 +104,11 @@ Every soundness theorem in §4.1 bounds the probability that the verifier accept
   `Jet.Complete T c := ∀ s fuel r, evalN fuel s c = some r → T.rel s r`;
   `JetSpec.Faithful j := Faithful j.T j.c ∧ Complete j.T j.c`;
   `Registry.Faithful R := ∀ n j, R n = some j → j.Faithful`.
-- A jet call is the hint `[11 [n clue] c]` with `n` an atom id (`Jet.jetCall`). By `Jet.evalN_hint_jet` its value is
-  the value of `c` once the clue evaluates; `Jet.rowJ_holdsN` turns a registered entry's relation into `HoldsN`.
+- A jet call is `Jet.wildCall id c = [11 [%wild [1 id]] c]` (`Nock/Jet/Wild.lean`, `Nock/Jet/Semantics.lean`): the tag
+  names the hint kind and the key is the clue's value. `Jet.jetCall n d c = [11 [n d] c]` (tag = id) is the earlier form
+  and is an ordinary hint for the generator. By `Jet.evalN_hint_jet`, which holds for any dynamic hint, the value is the
+  value of `c` once the clue evaluates; `Jet.rowJ_holdsN` (a standalone spec of the earlier form) turns a registered
+  entry's relation into `HoldsN`.
 - `Jet.VerifiedRegistry = (R, faithful : R.Faithful)`. Constructors: `VerifiedRegistry.empty`;
   `VerifiedRegistry.ofCompiled p hp Rt regs hwt` (id `n ∈ regs` ↦ `((Rt n).toTemplate p, compile p (Rt n))`, proof
   from `compile_jetSpec_faithful`); `VerifiedRegistry.add V n j hj` (requires `hj : j.Faithful`).
@@ -166,7 +169,8 @@ in one of the 17 states of `StateX`: `s0 … s9`, `cons`, `s10` (edit), `s10L` (
 terminal), `s11s` (static hint), `s11d` (dynamic hint), `s11j` (jet hint). A jet hint is a dynamic hint
 `[11 [%wild clue] body]` whose tag is the atom `%wild` (`wildTag`, `Nock/Jet/Wild.lean`) and whose clue evaluates to an atom
 `id`, the jet key. When `id` is registered with formula `c = body` and the template relation holds, the hint is an `s11j`
-node with one child (the clue); the body is not expanded. Any other tag is an ordinary hint. The canonical spelling is
+node with one child (the clue); the body is not expanded. Any other hint (another tag, an unregistered key, a clue value
+that is not an atom, or a body that is not the registered formula) is an ordinary `s11d` hint. The canonical spelling is
 `wildCall id body = [11 [%wild [1 id]] body]`.
 - `genX_sound (hR : R.Faithful)`: `genX R n s f = some (t, r) → HoldsN ⟨s, f, r⟩`.
 - `genX_complete (hR : R.Faithful)`: `evalN n s f = some r → ∃ t, genX R n s f = some (t, r)`.
@@ -1082,7 +1086,7 @@ are the catalogue the end-to-end package's template-jet headline is stated over.
   holds; `Pr[¬ Good] ≤ BL.epsC`; `StJ9AL BL.tr`; `HoldsN (cJ sJ fJP rT)`; and at `|K| = cK`, `BL.epsC < 2^-120` with an accepting coin.
 - `honestTpl`: the generated record is valid and accepted by `AcceptsJ9AL` at every orbit choice `o` with `OrbAdmL' I o` (`GenPortJ9ALHOrbFree.lean::OrbAdmL'`).
 - `rowsTpl_le`: every chip (in `rowsTpl_le`'s lettering: `X` compute, `C` cell table, `W` cell walk, `J`, `A` atom table, `V` atom walk, `AX` axis, `SP` split, `AL` ALU; traces use `C` for compute and `X` for the axis chip, §5.1) of every generated record has at most `nRowsTpl` rows, for every coin.
-  `nRowsTpl = 157` (the cell table, the largest chip); `nRowsTpl_le_768 : nRowsTpl ≤ 3 · 2^8`.
+  `nRowsTpl = 159` (the cell table, the largest chip); `nRowsTpl_le_768 : nRowsTpl ≤ 3 · 2^8`.
 - `honestTplUnif`: there is a coin `χe` and record `I` with `genJ9ALXJ … = some I` such that, for every `h ≥ 1` and
   every `ω : Gold` with `orderOf ω = 3 · 2^h` and `nRowsTpl ≤ 3 · 2^h`, the record on the uniform orbit `orbU h ω`
   (all nine chips on `⟨h, ω⟩`) is valid and accepted by `AcceptsJ9AL`. This is the form `nockvm-e2e` consumes.

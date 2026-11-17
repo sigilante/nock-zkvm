@@ -1,9 +1,13 @@
 /-
-  NockvmE2E/Exec/AddALR.lean   (GENERATED from add.inst.json; do not edit)
+  NockvmE2E/Exec/AddALR.lean   (the `add` fixture's instance as a literal)
 
   `addALR : ExecInst`: the executed J-9 AL `add` instance (hGen of order 3*2^(k+1), k = 6, hN = 128, nc = 1219, pubMode 3, 9-table layout of famJ9AL,
   5 tables compute/cell/walkJ8/atom/alu) as `FlatFam.loadInstF famJ9AL` loads it.  [executed] label: the loaded instance equals this literal (all fields,
-  `chipEqB` of every chip, K tags, prims) by a separate instance-check script (not included in this package).  `addALRF` = the false-claim twin: the result record's atom 2p+12 -> 2p+13 (hi/lo/idx kept).
+  `chipEqB` of every chip, K tags, prims) by `scripts/check-inst-literals.lean` (field by field, against
+  `fixtures/j9al-add/add.inst.json`).  `addALRF` = the false-claim twin: the result record's atom 2p+12 -> 2p+13 (hi/lo/idx kept).
+  Provenance: first generated from the fixture by a script not in this package; for the `%wild` jet form the claim tokens,
+  the cell table's `hN`, two preprocessed columns, the compute chip's K-tag lengths were updated from `loadInstF famJ9AL`.
+  Do not edit by hand: refresh from the fixture and run that check.
   Fixture: nockvm-e2e/fixtures/j9al-add (SHA256SUMS).  Not zero-knowledge.
 -/
 import NockvmE2E.Exec.J9ALChipsFam

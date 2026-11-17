@@ -185,7 +185,8 @@ Checked on this branch (Lean 4.35, two threads):
 - **Final build.** One build of the headline set, every module that
   transitively imports a changed file (777, all but the 48 GB
   module), `Handle/WildTagX.lean` and the three executables succeeds
-  (14,976 jobs) with no `sorryAx` printed.
+  (14,976 jobs at the layer-2 commit; 14,979 with the layer-3
+  changes) with no `sorryAx` printed.
 - **Headline set.** Every module imported by
   `scripts/delivery-axioms.lean` builds. The script's
   123 printed axiom footprints are identical, theorem by theorem, to
@@ -249,13 +250,34 @@ fails`). The README's jet example also runs and verifies in the new
 form.
 
 **Instance literals** (`Exec/AddALR.lean`, `Exec/JpALR.lean`). The
-release does not include their generator. They were patched from the
+generator and the instance-check script their REL-5.4 headers mention
+are not in the release. They were patched from the
 new instances as `FlatFam.loadInstF famJ9AL` loads them, each old
 value first asserted equal to the old literal. The changes are: the
 claim formula's tokens (`[%wild [1 7]]`), the cell table's `hN`
 (116 → 117, 157 → 159), two preprocessed columns (170, 171), the
 compute chip's K-tag array lengths (all `false`, +3 shared, +2
 constraints), and `jp`'s primitive cell index (122 → 124).
+`nockvm-e2e/scripts/check-inst-literals.lean` (new) compares each
+literal with the instance `loadInstF famJ9AL` loads from the shipped
+fixture, field by field, every chip by `chipEqB` and its K tags. It
+reports `OK` for both. Run against the REL-5.4 fixtures it reports
+exactly the changed fields (`pre`, `pubIn`, the compute chip and its K
+tags, the cell table's `hN`), so it does discriminate. It is a script,
+not a build gate.
+
+`docs/SPEC.md` describes the `%wild` form, but its generated
+"Sources" line anchors (`file:line` after each section) were not
+regenerated: the generator is not in the release, so some anchors
+point a few lines off on this branch.
+
+**What the build does and does not gate.** `lake build NockvmE2E`
+checks the kernel ties between the chip literals and the emitter spec.
+The verifier executables import the literals but not the tie
+theorems, so building an executable alone does not check them. The
+chip documents in `chipdocs/` are tied to nothing: they were
+re-emitted with `docJson`, and the fixtures' chip files are checked by
+the verifier against the literals, not against `chipdocs/`.
 
 **Proofs.** Hard-coded sizes follow (`LinkJ9ALAdd`, `LinkJ9ALToy`,
 `GenJp`, `LinkJ9ALJjp`: 116 → 117, 232 → 234, 157 → 159, 314 → 318,
@@ -275,19 +297,23 @@ depend on `[propext, Classical.choice, Quot.sound]`. The build's
 |---|---|---|
 | cell-table rows | 116 → 117 | 157 → 159 |
 | padded table height, columns | unchanged | unchanged |
-| opened trace values `vT` | 6,927 = 6,927 | 7,389 = 7,389 |
-| quotient values, roots, FRI final | unchanged | unchanged |
+| opened trace values `vT` (count) | 6,927 = 6,927 | 7,389 = 7,389 |
+| quotient values, roots, FRI final (counts) | 27 / 50 / 3, unchanged | 27 / 55 / 3, unchanged |
 | statement `z` (field elements) | 560 → 562 | 3,038 → 3,042 |
 | Merkle paths `trees` | 425,385 → 438,409 | 474,344 → 465,003 |
 | proof JSON bytes | +2.9% | −2.0% |
 
-The statement grows by two elements per jet call: atom `0` encodes as
-zero limbs and the key as one limb plus a length; the tag `%wild` and
-the old tag `7` are both one limb. The Merkle-path count moves with
+Counts only: the values differ, as they must for a different trace.
+The statement grows by two elements per jet call. An atom encodes as
+its limbs in a self-delimiting list (`ZBind.encNat`: a continue flag
+`1` before each limb, an end flag `0`), so the old clue value `0` is
+`[0]` and a one-limb key such as `7` is `[1, 7, 0]`. The tags `%wild`
+and `7` are both one limb, so the tag adds nothing; a key of two or
+more limbs would add more. The Merkle-path count moves with
 how many of the 170 Fiat–Shamir query positions coincide (166 → 169
-distinct for `add`, 170 → 168 for `jp`), which is why the two
-programs move in opposite directions; that is sampling, one sample
-each, not a cost of the change. Verifier time was not measured
+distinct for `add`, 170 → 168 for `jp`), which is consistent with
+the two programs moving in opposite directions. With one sample
+each, that attribution is a hypothesis, not a measurement. Verifier time was not measured
 against REL-5.4.
 
 **Known issue, not introduced here.** On macOS
