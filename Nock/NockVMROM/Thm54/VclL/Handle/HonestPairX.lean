@@ -223,8 +223,9 @@ def Op5DepthX (D : ℕ) (t : NTree SkelX) : Prop :=
 
 /-- **The jet-key binder**: on every jet row the clue's value, when an atom, is below `q`.  The jet
 key is the VALUE of the clue, so (unlike the hint's tag) it is not a leaf of the formula and
-`FormLeafX` does not bound it.  A constant clue `[1 id]` meets this binder whenever `FormLeafX`
-holds. -/
+`FormLeafX` does not bound it.  For a constant clue `[1 id]` the key is a formula leaf, so `FormLeafX`
+should imply it; that lemma is not proved here, and the only discharge in the release
+(`InhabJ8Comp.jetKey0`) is on a tree with no jet rows. -/
 def JetKeyX (q : ℕ) (t : NTree SkelX) : Prop :=
   ∀ u, InTree t u → u.label.state = .s11j → ∀ id, kidE u.label 0 = .atom id → id < q
 

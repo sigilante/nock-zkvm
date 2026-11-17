@@ -7,7 +7,7 @@
   `genJ8J Rt regs fuel s f χe` runs `genX` at the registry `regOf Rt regs` (id `n ∈ regs` ↦ the compiled template
   `Rt n`; `RegOK` holds for it by construction, up to `WellTyped`), then, beside `genJ8`'s compute / cell / walk /
   atom tables:
-  * **calls**: every `s11j` row of the run (BFS order) is a call `(id, subject)` (`id` = the row's `f_tth` atom);
+  * **calls**: every `s11j` row of the run (BFS order) is a call `(id, subject)` (`id` = the row's `sf1` atom, the clue's value);
     `ids` = the calls' ids;
   * **J rows** (HJ2's builder with HJ's single-evaluation block `blockW'`, handles from the cell list): one `reg` row per
     registered id, one block per call (`honestRows` values computed once); **the `mv` fix** (HJ2 `rowsPin`): each

@@ -55,7 +55,8 @@ key is bound to the program (below), and two new gates.
   of the clue, bound by the compute walk: on an `s11j` row the
   child label is `(s, fttt, sf1)`, so `sf1` must be the value of
   the clue formula on the same subject. REL-5.4's chip already
-  enforces this (`Handle/ChipHX.lean:510`, kid-kind gate at `:280`).
+  enforces this (child labels at `Handle/ChipHX.lean:514`, kid-kind gate
+  `(sS11j, xFttt)` at `:283`, on this branch).
 - **Clue values become public.** The list of called ids is part of
   the public layout. With keys in the formula it holds constants;
   with keys from the clue it holds run-time values, which may
@@ -96,8 +97,9 @@ Row counts in the demo are unchanged: 2 rows jetted, 2999 unjetted.
 | tag | `xFtth.k = 0` (a small atom) | `xFtth.k = 0` and `xFtth.v = wildTag` |
 | clue value | unconstrained beyond the child label | `xSf1.k = 0` (a small atom) |
 
-That is two arithmetic gates and one equality gate, and no new
-column: `sf1` already held the clue's value, bound to the clue
+That is one new arithmetic gate (`sS11j · xSf1.k`) and one new
+equality gate (the tag value); the tag's kind gate was already there.
+No column is added: `sf1` already held the clue's value, bound to the clue
 formula by the child label `(s, fttt, sf1)`. `ChipHX.s11j_wild`
 exports the two new facts. `wildTag` lives in `Nock/Jet/Wild.lean`,
 which imports nothing, so the generator and the chip name the same
@@ -116,6 +118,22 @@ and that costs nothing, because no soundness statement reads the
 tag. (The reviewers of layer 1 had expected this hypothesis to be
 needed; keeping the tag out of these predicates avoids it.)
 
+Soundness in fact needs less than the predicates state: the proof
+that a jet row's result is right (`GenuineNX.genuineNX_sem`) uses
+`R id = some j`, `j.c = body`, the template relation and the clue's
+termination, and never which `id` it was. Binding the id to the
+clue's value is what makes dispatch deterministic, not what makes
+it correct.
+
+The remark about `wildTag < p` is a statement about soundness only. At a toy field where
+`%wild` is a big atom, an honest `%wild` call fails the tag's kind
+gate, so jets cannot be used there at all; no toy instance in the
+release has jet rows. And the soundness predicates no longer say
+that a jet row's tag is `%wild`. The chip enforces it at Goldilocks
+(`s11_row` gives kind 0, `s11j_wild` gives the value, and
+`wildTag < p`); `Handle/WildTagX.lean` states it as a separate
+corollary, `s11j_tag`, which nothing in the soundness chain uses.
+
 These modules are in the import closure of the J-8 soundness bound
 (`Handle/LinkJ8A.lean`), so on this branch the bound is re-proved
 against the new chip, not inherited.
@@ -133,9 +151,16 @@ is small. A key that is the clue's *value* is not an atom of the
 formula, so `FormLeafX` no longer covers it. `HonestPairX.JetKeyX q t`
 states it directly: on every jet row, the clue's value, when an
 atom, is below `q`. It is a hypothesis of
-`computeChipVCLHX_honest_sat_tree` and `smallX_of_tree`; the
-concrete inhabitant discharges it (`InhabJ8Comp.jetKey0`). A
-constant clue `[1 id]` with `FormLeafX` implies it. Requiring the
+`computeChipVCLHX_honest_sat_tree` and `smallX_of_tree`. It is
+necessary: the honest fill fails the `sf1.k = 0` gate when `id ≥ p`.
+**Its only discharge is vacuous**: the concrete inhabitant
+(`InhabJ8Comp.jetKey0`) has no jet rows, and no theorem exhibits
+`computeChipVCLHX_honest_sat_tree` on a tree with one. (The
+`ProgAxOK` completeness paths, which carry the same bound on the
+clue value, are exercised non-vacuously by the J-9 AL toy facts,
+the `mul`/`lt`/`div` demos, `jp`'s twin and the matmul gen-link.)
+For a constant clue `[1 id]` the key is a formula leaf, so
+`FormLeafX` should imply `JetKeyX`; that lemma is not proved. Requiring the
 clue to be syntactically `[1 id]` would remove the hypothesis at
 the cost of one more cell decode per jet row.
 
@@ -156,34 +181,46 @@ regenerated with that tool, not edited.
 
 Checked on this branch (Lean 4.35, two threads):
 
+- **Final build.** One build of the headline set, every module that
+  transitively imports a changed file (777, all but the 48 GB
+  module), `Handle/WildTagX.lean` and the three executables succeeds
+  (14,976 jobs) with no `sorryAx` printed.
 - **Headline set.** Every module imported by
-  `scripts/delivery-axioms.lean` builds (10,527 jobs). The script's
+  `scripts/delivery-axioms.lean` builds. The script's
   123 printed axiom footprints are identical, theorem by theorem, to
   REL-5.4's: 63 + 59 at `[propext, Classical.choice, Quot.sound]`,
   `pub_before_first_squeeze` at `[propext, Quot.sound]`, no
   `sorryAx`.
-- **Outside the headline set.** The 22 library modules that name a
-  changed definition and are not in the headline closure build, as
-  do `nockvm-j8dump`, `nockvm-d5red` and `nockvm-j9alemit` (8,596
-  jobs). Not built: the rest of the library (about 1,400 modules
-  outside both sets, including the 48 GB module), which names none
-  of the changed definitions.
+- **Not built:** `Nock.RedTeam.Batch1420Thm54PartAL3Honest12` (the
+  48 GB module, the one dependent excluded) and modules that import
+  no changed file, whose oleans are unaffected.
+- **Reviews.** Wizard: sound (soundness chain to `HoldsN` intact and
+  no weaker; completeness hypotheses stronger by a necessary bound;
+  `JetKeyX` discharged only vacuously, as noted above). Chevalier:
+  sealed (no false result through a jet row; dropping the tag from
+  the soundness predicates is safe).
 - **Native checker.** `nockvm-j8dump jet` generates the tiny jetted
   program in the new form and its native `checkJ8` accepts it. The
   checker takes its gates from `ChipHX`, so it checks the new gates.
 
-**Measured cost.** The clue `[1 id]` is a new cell; the earlier
-`[1 0]` was hash-consed with an identical cell inside the compiled
-template and cost nothing. So the cell table grows by one row per
-distinct jet id in a program: 122 → 123 for the one-call program
+**Measured cost.** The clue `[1 id]` is a new cell unless that cell
+already occurs in the table; the earlier `[1 0]` was hash-consed with
+an identical cell inside the compiled template and cost nothing. In
+both measured programs the cell table grows by one row per distinct
+jet id: 122 → 123 for the one-call program
 (`Batch4771`), 157 → 159 for `jp`'s twin with two ids (`Batch4939`).
 Columns, decoding and public-input shape are unchanged. Proof size
 and verifier time are not measured; they need layer 3.
 
 ## Layer 3: the end-to-end package (not started)
 
-The chip appears in `nockvm-e2e/` as kernel-checked literals. Two
-more gates change the constraint list, so the literals, the
+The e2e executable verifier loads emitted constraint DAGs
+(`nockvm-e2e/chipdocs/j8_*.json`), and on this branch those still
+encode REL-5.4's chip. So the shipped executable currently checks
+the old gates: it can reject an honest new-form proof, and it cannot
+accept a false claim, since the old chip is sound for the same
+`evalN`. The chip appears in `nockvm-e2e/` as kernel-checked
+literals as well. Two more gates change the constraint list, so the literals, the
 verification keys and the shipped fixtures (`add`, `jp`) would be
 regenerated, and any numeric lemma that depends on the constraint
 count re-checked. Not examined beyond that.

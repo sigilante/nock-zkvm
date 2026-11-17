@@ -9,8 +9,9 @@
   * `RowOutputNX R` — E-0's `RowOutputFX` at ℕ (OP4 is `Noun.lus`, Nock 4K increment, no field
     wrap), and `s11j`: the clue child's value is an atom `id` (the jet key), `R id = some j`,
     `j.c = f_tt` (the hinted body) and `j.T.rel s e` (the J record).  The hint's tag does not
-    appear: `evalN` ignores it, so soundness does not need it.  That a jet row's tag is `%wild`
-    is the chip's gate (`ChipHX.s11j_wild`) and the generator's `jetHit`.
+    appear: `evalN` ignores it, so soundness does not need it.  The generator's `jetHit` emits jet
+    rows only under the tag `%wild`; the chip pins the tag's value in the field (`ChipHX.s11j_wild`),
+    which with `wildTag < p` is the atom `%wild` (`WildTagX.s11j_tag`).
   * `GenuineNX R` — the tree predicate, with E-0's `roles` field (chain positions are exactly
     `chainPosX`).
   * **`genuineNX_sem`** — every real node `HoldsN`, every chain node `ChainOK` at its atom axis.
