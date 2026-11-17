@@ -56,10 +56,12 @@ example {R : Registry} (hR : R.Faithful) {n m : ℕ} {s f r r' : Noun} {t : NTre
   genX_result_eq_evalN hR h hrun
 
 example {R : Registry} {n : ℕ} {s b clue body : Noun} {t : NTree SkelX} {r r' : Noun}
+    {tD : NTree SkelX} {v : Noun}
     (h : genX R (n + 1) s (.cell (.atom 11) (.cell (.cell b clue) body)) = some (t, r))
-    (hj : jetHit R b body s = some r') :
+    (hcl : genX R n s clue = some (tD, v))
+    (hj : jetHit R b v body s = some r') :
     t.label.state = .s11j ∧ r = r' ∧ ∃ tD v, t.children = [tD] ∧ genX R n s clue = some (tD, v) :=
-  genX_jet_row h hj
+  genX_jet_row h hcl hj
 
 example {a : ℕ} {new old e : Noun} :
     Noun.edit a new old = some e ↔ ChainOK a old e ∧ Noun.slot a e = some new := edit_iff_chainOK
@@ -89,17 +91,19 @@ example {R : Registry} (sk : SkelX) (hst : sk.state = .s10) (hs : (rowOfSkelX sk
 /-! ## Negative controls -/
 
 /-- (a) A registered jet whose clue CRASHES: the generator produces nothing (and `evalN` too). -/
-def crashProg : Noun := jetCall 7 (.cell (.atom 0) (.atom 0)) (compile Nock.Field.p (matmulT 2))
+def crashProg : Noun :=
+  hint (.atom wildTag) (.cell (.atom 0) (.atom 0)) (compile Nock.Field.p (matmulT 2))
 
-theorem nc_crash_clue_jetHit : jetHit matR (.atom 7) (compile Nock.Field.p (matmulT 2)) toyS =
-    some toyCG := by decide +kernel
+theorem nc_crash_clue_jetHit :
+    jetHit matR (.atom wildTag) (.atom 7) (compile Nock.Field.p (matmulT 2)) toyS =
+      some toyCG := by decide +kernel
 
 theorem nc_crash_clue : genX matR 2 toyS crashProg = none := by decide +kernel
 
 theorem nc_crash_clue_evalN : evalN 200 toyS crashProg = none := by decide +kernel
 
 /-- (b) A hint whose body is NOT the registered formula is not jetted: `s11d`, both children. -/
-def mismatchProg : Noun := jetCall 7 (.cell (.atom 1) (.atom 0)) (.cell (.atom 1) (.atom 5))
+def mismatchProg : Noun := wildCall 7 (.cell (.atom 1) (.atom 5))
 
 theorem nc_mismatch :
     (runRows matR 2 toyS mismatchProg).map (fun k => k.state) = [.s11d, .s1, .s1] ∧

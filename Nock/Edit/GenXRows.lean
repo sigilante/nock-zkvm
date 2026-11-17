@@ -135,7 +135,8 @@ def RowNX.SemN (R : Registry) (r : RowNX) : Prop :=
       r.fth = .cell r.ftth r.fttt ∧ r.e = r.sf2
   | .s11j => r.fh = .atom 11 ∧ r.f = .cell r.fh r.ft ∧ r.ft = .cell r.fth r.ftt ∧
       r.fth = .cell r.ftth r.fttt ∧
-      ∃ id j, r.ftth = .atom id ∧ R id = some j ∧ j.c = r.ftt ∧ j.T.rel r.s r.e
+      ∃ id j, r.ftth = .atom wildTag ∧ r.sf1 = .atom id ∧ R id = some j ∧ j.c = r.ftt ∧
+        j.T.rel r.s r.e
 
 /-! ## §2 Every generated row satisfies `SemN` -/
 
@@ -297,7 +298,7 @@ theorem genX_rowSem {R : Registry} {n : ℕ} {s f : Noun} {t : NTree SkelX} {r :
     obtain ⟨rfl, -⟩ := h
     try have := (genX_label hcl).2.2.1
     try have := (genX_label hj).2.2.1
-    obtain ⟨id, j, rfl, hj1, hj2, hj3⟩ := jetHit_spec hj
+    obtain ⟨id, j, rfl, rfl, hj1, hj2, hj3⟩ := jetHit_spec hj
     try clear ih1
     try clear ih2
     try clear ih3

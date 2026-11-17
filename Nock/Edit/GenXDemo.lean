@@ -124,8 +124,11 @@ theorem matR_faithful : matR.Faithful := by
   cases h
   exact matmul_jetSpec_faithful (by unfold Nock.Field.p; norm_num) 2
 
-/-- The hinted program `[11 [7 [1 0]] c_T]`. -/
-def matProg : Noun := jetCall 7 (.cell (.atom 1) (.atom 0)) (compile Nock.Field.p (matmulT 2))
+/-- The hinted program `[11 [%wild [1 7]] c_T]`: tag `%wild`, the jet key `7` in the clue. -/
+def matProg : Noun := wildCall 7 (compile Nock.Field.p (matmulT 2))
+
+/-- The OLD wire form `[11 [7 [1 0]] c_T]`, where the tag itself was the jet id. -/
+def matProgTagged : Noun := jetCall 7 (.cell (.atom 1) (.atom 0)) (compile Nock.Field.p (matmulT 2))
 
 /-- **The jetted run**: one `s11j` row with one `s1` child (the clue); the result is the product
 `[[5 8] [15 22]]` computed by the template's semantics. -/
@@ -151,6 +154,13 @@ theorem mat_unjetted : (genX noR 200 toyS matProg).map Prod.snd = some toyCG := 
 /-- Row counts: 2 jetted, 2999 unjetted. -/
 theorem mat_row_counts :
     (runRows matR 2 toyS matProg).length = 2 ∧ (runRows noR 200 toyS matProg).length = 2999 := by
+  decide +kernel
+
+/-- **A tag is a hint kind, not a jet id**: the old form, tag `7`, is no longer a jet.  It is an
+ordinary dynamic hint (`s11d`), evaluated in full to the same value. -/
+theorem mat_tagged_not_jet :
+    ((runRows matR 200 toyS matProgTagged).map (fun k => k.state)).head? = some .s11d ∧
+      (genX matR 200 toyS matProgTagged).map Prod.snd = some toyCG := by
   decide +kernel
 
 end Nock.Edit.GenX.Demo

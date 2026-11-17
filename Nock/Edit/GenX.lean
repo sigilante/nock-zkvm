@@ -76,13 +76,28 @@ def genChainF (old e : Noun) : ℕ → ℕ → NTree SkelX
 def genChain (old e : Noun) (a : ℕ) : NTree SkelX := genChainF old e a a
 
 
-def jetHit (R : Registry) (b c s : Noun) : Option Noun :=
-  match b with
-  | .atom id =>
-    match R id with
-    | some j => if j.c = c then j.T.semS s else none
-    | none => none
-  | .cell _ _ => none
+/-- **The reserved hint tag of a jet call**: the cord `%wild`, as an atom.  A jet is ONE KIND of
+dynamic hint; every other tag is a hint the machine does not act on. -/
+def wildTag : ℕ := 0x646c6977
+
+/-- **Jet dispatch.**  `b` is the hint's tag, `v` the VALUE of its clue, `c` its body.  A hit needs
+the reserved tag `%wild`, an atomic clue value `id` (the jet key), an entry registered at `id`
+whose formula is exactly `c`, and a template that answers on `s`.  The tag names the hint kind;
+the key is the clue's payload. -/
+def jetHit (R : Registry) (b v c s : Noun) : Option Noun :=
+  match b, v with
+  | .atom w, .atom id =>
+    if w = wildTag then
+      match R id with
+      | some j => if j.c = c then j.T.semS s else none
+      | none => none
+    else none
+  | _, _ => none
+
+/-- **A jet call on the wire**: `[11 [%wild [1 id]] c]`.  The clue is the constant `id`, so it costs
+one `s1` row; any clue formula whose value is the atom `id` dispatches the same way. -/
+def wildCall (id : ℕ) (c : Noun) : Noun :=
+  hint (.atom wildTag) (.cell (.atom 1) (.atom id)) c
 
 /-! ## §4 The generator -/
 
@@ -169,8 +184,8 @@ def genComputeSkeletonX (R : Registry) : ℕ → Noun → Noun → Option (NTree
     | _, _ => none
   | n + 1, s, .cell (.atom 11) (.cell (.cell b clue) body) =>
     match genComputeSkeletonX R n s clue with
-    | some (tD, _) =>
-      match jetHit R b body s with
+    | some (tD, v) =>
+      match jetHit R b v body s with
       | some r => some (mkX .s11j s (.cell (.atom 11) (.cell (.cell b clue) body)) r [tD], r)
       | none =>
         match genComputeSkeletonX R n s body with
@@ -199,16 +214,21 @@ theorem genX_label {R : Registry} {n : ℕ} {s f : Noun} {t : NTree SkelX} {r : 
   all_goals (simp_all [genComputeSkeletonX]; try (obtain ⟨rfl, rfl⟩ := h; simp [StateX.isChain]))
 
 /-- What a jet hit means: an atom id, a registered entry with that formula, its relation. -/
-theorem jetHit_spec {R : Registry} {b c s r : Noun} (h : jetHit R b c s = some r) :
-    ∃ id j, b = .atom id ∧ R id = some j ∧ j.c = c ∧ j.T.rel s r := by
+theorem jetHit_spec {R : Registry} {b v c s r : Noun} (h : jetHit R b v c s = some r) :
+    ∃ id j, b = .atom wildTag ∧ v = .atom id ∧ R id = some j ∧ j.c = c ∧ j.T.rel s r := by
   unfold jetHit at h
-  rcases b with id | _
-  · cases hj : R id with
-    | none => simp [hj] at h
-    | some j =>
-      simp only [hj] at h
-      split_ifs at h with hc
-      exact ⟨id, j, rfl, hj, hc, h⟩
+  rcases b with w | _
+  · rcases v with id | _
+    · simp only at h
+      split_ifs at h with hw
+      subst hw
+      cases hj : R id with
+      | none => simp [hj] at h
+      | some j =>
+        simp only [hj] at h
+        split_ifs at h with hc
+        exact ⟨id, j, rfl, rfl, hj, hc, h⟩
+    · simp at h
   · simp at h
 
 /-- A run at some fuel is a run at every larger fuel. -/
@@ -293,7 +313,7 @@ theorem genX_sound {R : Registry} (hR : R.Faithful) {n : ℕ} {s f : Noun} {t : 
   case case35 n s b clue body t1 v hcl r1 hj ih1 =>
     simp only [genComputeSkeletonX, hcl, hj, Option.some.injEq, Prod.mk.injEq] at h
     obtain ⟨-, rfl⟩ := h
-    obtain ⟨id, j, rfl, hRj, hc, hrel⟩ := jetHit_spec hj
+    obtain ⟨id, j, rfl, rfl, hRj, hc, hrel⟩ := jetHit_spec hj
     obtain ⟨N1, e1⟩ := holds_ge (ih1 hcl)
     obtain ⟨N2, e2⟩ := holds_ge ((hR id j hRj).1 s r1 hrel)
     change ∀ m, N2 ≤ m → evalN m s j.c = some r1 at e2
@@ -374,12 +394,12 @@ theorem genX_complete {R : Registry} (hR : R.Faithful) {n : ℕ} {s f r : Noun}
   case case33 fuel s a clue body v hcl ih1 ih2 =>
     simp only [evalN, hcl] at h
     obtain ⟨t1, g1⟩ := ih1 hcl
-    cases hj : jetHit R a body s with
+    cases hj : jetHit R a v body s with
     | none =>
       obtain ⟨t2, g2⟩ := ih2 h
       simp [genComputeSkeletonX, g1, g2, hj]
     | some r' =>
-      obtain ⟨id, j, rfl, hRj, hc, hrel⟩ := jetHit_spec hj
+      obtain ⟨id, j, rfl, rfl, hRj, hc, hrel⟩ := jetHit_spec hj
       have hrel' : j.T.rel s r := (hR id j hRj).2 s fuel r (by rw [hc]; exact h)
       obtain rfl := Template.rel_functional hrel hrel'
       simp [genComputeSkeletonX, g1, hj]
@@ -642,15 +662,15 @@ theorem genX_result_eq_evalN {R : Registry} (hR : R.Faithful) {n m : ℕ} {s f r
 
 /-- **A jetted row never descends into the body**: its only child is the clue. -/
 theorem genX_jet_row {R : Registry} {n : ℕ} {s b clue body : Noun} {t : NTree SkelX} {r r' : Noun}
+    {tD : NTree SkelX} {v : Noun}
     (h : genX R (n + 1) s (.cell (.atom 11) (.cell (.cell b clue) body)) = some (t, r))
-    (hj : jetHit R b body s = some r') :
+    (hcl : genX R n s clue = some (tD, v))
+    (hj : jetHit R b v body s = some r') :
     t.label.state = .s11j ∧ r = r' ∧ ∃ tD v, t.children = [tD] ∧ genX R n s clue = some (tD, v) := by
-  cases hcl : genX R n s clue with
-  | none => simp [genComputeSkeletonX, hcl] at h
-  | some p =>
-    obtain ⟨tD, v⟩ := p
-    simp only [genComputeSkeletonX, hcl, hj, Option.some.injEq, Prod.mk.injEq] at h
-    obtain ⟨rfl, rfl⟩ := h
-    exact ⟨rfl, rfl, tD, v, rfl, rfl⟩
+  have hcl' := hcl
+  unfold genX at hcl'
+  simp only [genX, genComputeSkeletonX, hcl', hj, Option.some.injEq, Prod.mk.injEq] at h
+  obtain ⟨rfl, rfl⟩ := h
+  exact ⟨rfl, rfl, tD, v, rfl, hcl⟩
 
 end Nock.Edit.GenX
