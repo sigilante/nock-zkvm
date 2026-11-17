@@ -4,7 +4,7 @@
 
   ## What is checked (kernel; std3 `#print axioms` at the end of the file)
   For each ALU attack a CONCRETE FALSE CLAIM is built: the claim a prover that exploited the attack would assert
-  for a primitive call `*[[x y] [11 [id [1 0]] primC op]] = r`, where the true result differs.
+  for a primitive call `*[[x y] [11 [%wild [1 id]] primC op]] = r`, where the true result differs.
   (a) `<name>_false : ¬ HoldsN claim` (pure Nock-level fact, via `primSpec_complete` + `binT_rel`), with positive
       controls `ctl_*` (`HoldsN` of the true call, via `primSpec_faithful`), so the NC lemma is not vacuous;
   (b) `<name>_rejected_AL`: at EVERY in-regime J-9 AL verifier datum (`RegimeAL`, any `Pb`, any faithful `Rg`, any
@@ -51,9 +51,9 @@ noncomputable section
 /-- The field modulus `p = 2^64 - 2^32 + 1`. -/
 abbrev P : ℕ := Nock.Atoms.p
 
-/-- The primitive call `*[s [11 [id [1 0]] primC op]] = res`. -/
+/-- The primitive call `*[s [11 [%wild [1 id]] primC op]] = res`. -/
 def primClaimS (id : ℕ) (op : PrimOp) (s res : Noun) : P8PublicClaim :=
-  ⟨s, hint (.atom id) (op1 (A 0)) (primC op), res⟩
+  ⟨s, hint (.atom Nock.Jet.wildTag) (op1 (A id)) (primC op), res⟩
 
 /-- The binary primitive call on atoms. -/
 def primClaim (id : ℕ) (op : PrimOp) (x y res : ℕ) : P8PublicClaim :=
@@ -79,8 +79,8 @@ theorem holdsN_primC {op : PrimOp} (hop : op ≠ .dec) {x y n : ℕ} (h : primSe
     rw [hT_of_ne op hop]; exact binT_rel_of h
   exact (primSpec_faithful op).1 _ _ hrel
 
-theorem clue_computes (s : Noun) : ∃ fuel v, Nock.evalN fuel s (op1 (A 0)) = some v :=
-  ⟨1, .atom 0, by simp [op1, A, Nock.evalN]⟩
+theorem clue_computes (id : ℕ) (s : Noun) : ∃ fuel v, Nock.evalN fuel s (op1 (A id)) = some v :=
+  ⟨1, .atom id, by simp [op1, A, Nock.evalN]⟩
 
 theorem not_holdsN_primClaim {id : ℕ} {op : PrimOp} (hop : op ≠ .dec) (x y res : ℕ)
     (h : primSem op x y ≠ some res) : ¬ HoldsN (primClaim id op x y res) := by
@@ -94,7 +94,7 @@ theorem not_holdsN_primClaim {id : ℕ} {op : PrimOp} (hop : op ≠ .dec) (x y r
 
 theorem holdsN_primClaim {id : ℕ} {op : PrimOp} (hop : op ≠ .dec) {x y n : ℕ} (h : primSem op x y = some n) :
     HoldsN (primClaim id op x y n) :=
-  holdsN_hint_iff.mpr ⟨clue_computes _, holdsN_primC hop h⟩
+  holdsN_hint_iff.mpr ⟨clue_computes _ _, holdsN_primC hop h⟩
 
 /-- Every primitive arm is faithful (the positive side: a registered `primSpec` agrees with `evalN`). -/
 theorem primSpec_faithful_all : ∀ op : PrimOp, (primSpec op).Faithful := primSpec_faithful

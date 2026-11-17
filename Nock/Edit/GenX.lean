@@ -95,11 +95,6 @@ def jetHit (R : Registry) (b v c s : Noun) : Option Noun :=
     else none
   | _, _ => none
 
-/-- **A jet call on the wire**: `[11 [%wild [1 id]] c]`.  The clue is the constant `id`, so it costs
-one `s1` row; any clue formula whose value is the atom `id` dispatches the same way. -/
-def wildCall (id : ℕ) (c : Noun) : Noun :=
-  hint (.atom wildTag) (.cell (.atom 1) (.atom id)) c
-
 /-! ## §4 The generator -/
 
 /-- **`genComputeSkeletonX`**: the compute tree of `*[s f]` at the extended ISA, with its result.

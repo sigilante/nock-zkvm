@@ -59,7 +59,7 @@ def tinyT : Tpl where
 
 def tinyS : Noun := .cell (.atom 0) (.cell (.cell (.atom 5) (.atom 7)) (.atom 0))
 
-def tinyProg : Noun := Nock.Jet.jetCall 7 (.cell (.atom 1) (.atom 0)) (Nock.Jet.Autogen.compile Nock.Field.p tinyT)
+def tinyProg : Noun := Nock.Jet.wildCall 7 (Nock.Jet.Autogen.compile Nock.Field.p tinyT)
 
 def main (args : List String) : IO Unit := do
   if args.head? == some "jet" then

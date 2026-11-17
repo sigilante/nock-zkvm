@@ -2,14 +2,14 @@
   Nock/RedTeam/Batch4939Thm54J9ALTplJetToy.lean
 
   **A template-jet twin of `genLink_toy` (J-9 AL, hypothesis-free).**  The program `jp` of `NockvmE2E.Z38.CatJ`:
-  subject `[3 (p+5)]`, formula `[[11 [7 [1 0]] (compile p TN)] [11 [8 [1 0]] (primC add)]]`, fuel 4, registry
+  subject `[3 (p+5)]`, formula `[[11 [%wild [1 7]] (compile p TN)] [11 [%wild [1 8]] (primC add)]]`, fuel 4, registry
   `catJ.toVR.R` (template `TN` at id 7, the primitive `add` at id 8), templates `rtP catJ.toCR.Rt catJ.prims`.  One
   TEMPLATE jet call (id 7) and one big-atom primitive call (id 8), so the J-8 tables carry jet rows and the ALU chip is
   on.  `TN`, `CN`, `catJ` are copied field for field from `NockvmE2E.Z38.CatJ` (nockvm-e2e).
   Headlines: `genLinkTpl` (checker accepts the generator's record at a good coin), `complJ9AL_tpl` (the
   `complJ9AL_closed` instance; `hRt`/`hregAx` from `catJ.compiledByP` are not vacuous), `honestTpl` (ALU-orbit form),
   `rowsTpl_le` (every chip has at most `nRowsTpl` rows, a bound independent of the coin), `honestTplUnif` (uniform
-  orbit `orbU h ω`); `nRowsTpl = 157` (the cell table, the largest chip) with `nRowsTpl_le_768` (fits orbit height 8).
+  orbit `orbU h ω`); `nRowsTpl = 159` (the cell table, the largest chip) with `nRowsTpl_le_768` (fits orbit height 8).
   The ALU length is a bound (`aluLen ≤ 48`, the `aluLen` style); the cell and jet row counts are kernel `decide` on
   list lengths; the run and the J-8 / J-9 A facts are kernel `decide` on the explicit five-node tree.
 -/
@@ -68,9 +68,10 @@ def catJ : CheckedRegP pG where
   ndP := by decide
 
 def sJ : Noun := .cell (.atom 3) (.atom (pG + 5))
-def clueJ : Noun := .cell (.atom 1) (.atom 0)
-def f1 : Noun := .cell (.atom 11) (.cell (.cell (.atom 7) clueJ) (compile pG TN))
-def f2 : Noun := .cell (.atom 11) (.cell (.cell (.atom 8) clueJ) (primC .add))
+def clue7 : Noun := .cell (.atom 1) (.atom 7)
+def clue8 : Noun := .cell (.atom 1) (.atom 8)
+def f1 : Noun := .cell (.atom 11) (.cell (.cell (.atom wildTag) clue7) (compile pG TN))
+def f2 : Noun := .cell (.atom 11) (.cell (.cell (.atom wildTag) clue8) (primC .add))
 def fJP : Noun := .cell f1 f2
 def r1 : Noun := .cell (.atom 9) (.cell (.atom (pG + 5)) (.atom 0))
 def r2 : Noun := .atom (pG + 8)
@@ -82,9 +83,9 @@ abbrev primsJ : List (ℕ × PrimOp) := catJ.prims
 theorem Rg7 : Rg.R 7 = CN.toVR.R 7 :=
   CheckedRegistryP.addPrims_R_of_not_mem CN.toVR [(8, .add)] 7 (by simp)
 
-theorem jet1 : jetHit Rg.R (.atom 7) (compile pG TN) sJ = some r1 := by
-  have : jetHit CN.toVR.R (.atom 7) (compile pG TN) sJ = some r1 := by decide +kernel
-  show jetHit (CheckedRegistryP.addPrims CN.toVR [(8, .add)]).R _ _ _ = _
+theorem jet1 : jetHit Rg.R (.atom wildTag) (.atom 7) (compile pG TN) sJ = some r1 := by
+  have : jetHit CN.toVR.R (.atom wildTag) (.atom 7) (compile pG TN) sJ = some r1 := by decide +kernel
+  show jetHit (CheckedRegistryP.addPrims CN.toVR [(8, .add)]).R _ _ _ _ = _
   have e : (CheckedRegistryP.addPrims CN.toVR [(8, .add)]).R 7 = CN.toVR.R 7 :=
     CheckedRegistryP.addPrims_R_of_not_mem CN.toVR [(8, .add)] 7 (by simp)
   simp only [jetHit, e]
@@ -93,27 +94,31 @@ theorem jet1 : jetHit Rg.R (.atom 7) (compile pG TN) sJ = some r1 := by
 theorem Rg8 : Rg.R 8 = some (primSpec .add) :=
   CheckedRegistryP.addPrims_R_of_mem CN.toVR [(8, .add)] (by simp) (8, .add) (by simp)
 
-theorem jet2 : jetHit Rg.R (.atom 8) (primC .add) sJ = some r2 := by
+theorem jet2 : jetHit Rg.R (.atom wildTag) (.atom 8) (primC .add) sJ = some r2 := by
   simp [jetHit, Rg8, primSpec, primTemplate, binT, Template.semS, Template.args, sJ, r2, Noun.slot, pG, primSem]
   try omega
 
-def tD : NTree SkelX := mkX .s1 sJ clueJ (.atom 0) []
-def tJ1 : NTree SkelX := mkX .s11j sJ f1 r1 [tD]
-def tJ2 : NTree SkelX := mkX .s11j sJ f2 r2 [tD]
+def tD7 : NTree SkelX := mkX .s1 sJ clue7 (.atom 7) []
+def tD8 : NTree SkelX := mkX .s1 sJ clue8 (.atom 8) []
+def tJ1 : NTree SkelX := mkX .s11j sJ f1 r1 [tD7]
+def tJ2 : NTree SkelX := mkX .s11j sJ f2 r2 [tD8]
 def tT : NTree SkelX := mkX .cons sJ fJP (.cell r1 r2) [tJ1, tJ2]
 def rT : Noun := .cell r1 r2
 
-theorem gD : genX Rg.R 2 sJ clueJ = some (tD, .atom 0) := by
-  simp [genX, genComputeSkeletonX, clueJ, tD, mkX]
+theorem gD7 : genX Rg.R 2 sJ clue7 = some (tD7, .atom 7) := by
+  simp [genX, genComputeSkeletonX, clue7, tD7, mkX]
+
+theorem gD8 : genX Rg.R 2 sJ clue8 = some (tD8, .atom 8) := by
+  simp [genX, genComputeSkeletonX, clue8, tD8, mkX]
 
 theorem g1 : genX Rg.R 3 sJ f1 = some (tJ1, r1) := by
-  have h := gD
+  have h := gD7
   simp only [genX] at h
   simp only [genX, f1, genComputeSkeletonX, h]
   rw [jet1]; rfl
 
 theorem g2 : genX Rg.R 3 sJ f2 = some (tJ2, r2) := by
-  have h := gD
+  have h := gD8
   simp only [genX] at h
   simp only [genX, f2, genComputeSkeletonX, h]
   rw [jet2]; rfl
@@ -134,15 +139,15 @@ open Nock.V1J8.Exe (CoinsE)
 
 abbrev RtP : ℕ → Tpl := rtP Rt0 primsJ
 
-theorem bfsT : bfsForest [tT] = [tT, tJ1, tJ2, tD, tD] := by
-  simp [bfsForest, tT, tJ1, tJ2, tD, mkX]
+theorem bfsT : bfsForest [tT] = [tT, tJ1, tJ2, tD7, tD8] := by
+  simp [bfsForest, tT, tJ1, tJ2, tD7, tD8, mkX]
 
 theorem rowsT : rowsOfT tT = #[rowOfSkelX tT.label, rowOfSkelX tJ1.label, rowOfSkelX tJ2.label,
-    rowOfSkelX tD.label, rowOfSkelX tD.label] := by
+    rowOfSkelX tD7.label, rowOfSkelX tD8.label] := by
   simp only [rowsOfT, bfsT]; rfl
 
 abbrev rowsL : Array RowNX := #[rowOfSkelX tT.label, rowOfSkelX tJ1.label, rowOfSkelX tJ2.label,
-    rowOfSkelX tD.label, rowOfSkelX tD.label]
+    rowOfSkelX tD7.label, rowOfSkelX tD8.label]
 
 noncomputable section
 abbrev DDT := j8DataOf pG Rg RtP genT
@@ -168,7 +173,7 @@ theorem hleafT : ComplJ8Walk.RootsLeafOK DDT.roots := by
   decide +kernel
 
 theorem inTree_tT (u : NTree SkelX) (h : InTree tT u) :
-    u = tT ∨ u = tJ1 ∨ u = tJ2 ∨ u = tD := by
+    u = tT ∨ u = tJ1 ∨ u = tJ2 ∨ u = tD7 ∨ u = tD8 := by
   have : u ∈ bfsForest [tT] := (mem_bfsForest [tT] u).2 ⟨tT, by simp, h⟩
   rw [bfsT] at this; simpa using this
 
@@ -177,25 +182,31 @@ open Nock.NockVMROM.Thm54.VclL.Handle.ComplJ8Jet (CalledIds)
 
 theorem hax9T : ProgAxOK9A pG tT := by
   intro u hu
-  rcases inTree_tT u hu with rfl | rfl | rfl | rfl
+  rcases inTree_tT u hu with rfl | rfl | rfl | rfl | rfl
   · show AxRowX9A _ (rowOfSkelX tT.label)
     simp only [AxRowX9A]; trivial
   · show AxRowX9A _ (rowOfSkelX tJ1.label)
     simp only [AxRowX9A]
-    intro id h
-    have : (rowOfSkelX tJ1.label).ftth = .atom 7 := rfl
-    rw [this] at h; cases h; decide
+    refine ⟨fun id h => ?_, fun id h => ?_⟩
+    · have : (rowOfSkelX tJ1.label).ftth = .atom wildTag := rfl
+      rw [this] at h; cases h; decide
+    · have : (rowOfSkelX tJ1.label).sf1 = .atom 7 := rfl
+      rw [this] at h; cases h; decide
   · show AxRowX9A _ (rowOfSkelX tJ2.label)
     simp only [AxRowX9A]
-    intro id h
-    have : (rowOfSkelX tJ2.label).ftth = .atom 8 := rfl
-    rw [this] at h; cases h; decide
-  · show AxRowX9A _ (rowOfSkelX tD.label)
+    refine ⟨fun id h => ?_, fun id h => ?_⟩
+    · have : (rowOfSkelX tJ2.label).ftth = .atom wildTag := rfl
+      rw [this] at h; cases h; decide
+    · have : (rowOfSkelX tJ2.label).sf1 = .atom 8 := rfl
+      rw [this] at h; cases h; decide
+  · show AxRowX9A _ (rowOfSkelX tD7.label)
+    simp only [AxRowX9A]; trivial
+  · show AxRowX9A _ (rowOfSkelX tD8.label)
     simp only [AxRowX9A]; trivial
 
 theorem hop5T : ComplJ8.ProgOp5OK pG tT := by
   intro u hu
-  rcases inTree_tT u hu with rfl | rfl | rfl | rfl <;> intro h <;> cases h
+  rcases inTree_tT u hu with rfl | rfl | rfl | rfl | rfl <;> intro h <;> cases h
 
 theorem hwalk9T : WalkDepthOK9A (rowsOfT tT) := by
   show ∀ r ∈ VclL.pathReads (ComplJ9ABinders.walkReads9 (rowsOfT tT)), VclL.depthOf r.2 ≤ 61
@@ -216,40 +227,45 @@ open Nock.NockVMROM.Thm54.VclL.Handle.ComplJ9AGen (LX9 genX9T rowsOfT9 rowX9)
 theorem chipTT : ComplJ9AGen.chipOf tT.label = (.old, 0) := by decide +kernel
 theorem chipTJ1 : ComplJ9AGen.chipOf tJ1.label = (.old, 0) := by decide +kernel
 theorem chipTJ2 : ComplJ9AGen.chipOf tJ2.label = (.old, 0) := by decide +kernel
-theorem chipTD : ComplJ9AGen.chipOf tD.label = (.old, 0) := by decide +kernel
+theorem chipTD7 : ComplJ9AGen.chipOf tD7.label = (.old, 0) := by decide +kernel
+theorem chipTD8 : ComplJ9AGen.chipOf tD8.label = (.old, 0) := by decide +kernel
 
 def nd9 (k : SkelX) (ks : List (NTree LX9)) : NTree LX9 := .node ⟨rowX9 k, .old, 0, 0, rowOfSkelX k⟩ ks
 
-theorem g9D : genX9T tD = nd9 tD.label [] := by
-  show genX9T (.node tD.label []) = _
-  rw [ComplJ9AGen.genX9T_node, chipTD]; rfl
+theorem g9D7 : genX9T tD7 = nd9 tD7.label [] := by
+  show genX9T (.node tD7.label []) = _
+  rw [ComplJ9AGen.genX9T_node, chipTD7]; rfl
 
-theorem g9J1 : genX9T tJ1 = nd9 tJ1.label [nd9 tD.label []] := by
-  show genX9T (.node tJ1.label [tD]) = _
+theorem g9D8 : genX9T tD8 = nd9 tD8.label [] := by
+  show genX9T (.node tD8.label []) = _
+  rw [ComplJ9AGen.genX9T_node, chipTD8]; rfl
+
+theorem g9J1 : genX9T tJ1 = nd9 tJ1.label [nd9 tD7.label []] := by
+  show genX9T (.node tJ1.label [tD7]) = _
   rw [ComplJ9AGen.genX9T_node, chipTJ1]
-  simp only [List.map_cons, List.map_nil, g9D, ComplJ9AGen.kid9, chipTJ1, nd9]
+  simp only [List.map_cons, List.map_nil, g9D7, ComplJ9AGen.kid9, chipTJ1, nd9]
   simp
 
-theorem g9J2 : genX9T tJ2 = nd9 tJ2.label [nd9 tD.label []] := by
-  show genX9T (.node tJ2.label [tD]) = _
+theorem g9J2 : genX9T tJ2 = nd9 tJ2.label [nd9 tD8.label []] := by
+  show genX9T (.node tJ2.label [tD8]) = _
   rw [ComplJ9AGen.genX9T_node, chipTJ2]
-  simp only [List.map_cons, List.map_nil, g9D, ComplJ9AGen.kid9, chipTJ2, nd9]
+  simp only [List.map_cons, List.map_nil, g9D8, ComplJ9AGen.kid9, chipTJ2, nd9]
   simp
 
-theorem g9T : genX9T tT = nd9 tT.label [nd9 tJ1.label [nd9 tD.label []], nd9 tJ2.label [nd9 tD.label []]] := by
+theorem g9T : genX9T tT = nd9 tT.label [nd9 tJ1.label [nd9 tD7.label []], nd9 tJ2.label [nd9 tD8.label []]] := by
   show genX9T (.node tT.label [tJ1, tJ2]) = _
   rw [ComplJ9AGen.genX9T_node, chipTT]
   simp only [List.map_cons, List.map_nil, g9J1, g9J2, ComplJ9AGen.kid9, chipTT, nd9]
   simp
 
-theorem bfs9T : bfsForest [nd9 tT.label [nd9 tJ1.label [nd9 tD.label []], nd9 tJ2.label [nd9 tD.label []]]] =
-    [nd9 tT.label [nd9 tJ1.label [nd9 tD.label []], nd9 tJ2.label [nd9 tD.label []]], nd9 tJ1.label [nd9 tD.label []], nd9 tJ2.label [nd9 tD.label []],
-    nd9 tD.label [], nd9 tD.label []] := by
+theorem bfs9T : bfsForest [nd9 tT.label [nd9 tJ1.label [nd9 tD7.label []], nd9 tJ2.label [nd9 tD8.label []]]] =
+    [nd9 tT.label [nd9 tJ1.label [nd9 tD7.label []], nd9 tJ2.label [nd9 tD8.label []]], nd9 tJ1.label [nd9 tD7.label []], nd9 tJ2.label [nd9 tD8.label []],
+    nd9 tD7.label [], nd9 tD8.label []] := by
   simp [bfsForest, nd9]
 
 theorem rows9T : rowsOfT9 tT = #[⟨rowX9 tT.label, .old, 0, 0, rowOfSkelX tT.label⟩, ⟨rowX9 tJ1.label, .old, 0, 0, rowOfSkelX tJ1.label⟩,
-    ⟨rowX9 tJ2.label, .old, 0, 0, rowOfSkelX tJ2.label⟩, ⟨rowX9 tD.label, .old, 0, 0, rowOfSkelX tD.label⟩,
-    ⟨rowX9 tD.label, .old, 0, 0, rowOfSkelX tD.label⟩] := by
+    ⟨rowX9 tJ2.label, .old, 0, 0, rowOfSkelX tJ2.label⟩, ⟨rowX9 tD7.label, .old, 0, 0, rowOfSkelX tD7.label⟩,
+    ⟨rowX9 tD8.label, .old, 0, 0, rowOfSkelX tD8.label⟩] := by
   simp only [rowsOfT9, g9T, bfs9T]; rfl
 
 theorem keys9T : ComplJ9AChainsRun.axKeys9 (rowsOfT9 tT) = [] := by
@@ -335,7 +351,7 @@ theorem foldl_addCells_len : ∀ (roots acc : List Noun),
     have h2 := addCells_len n acc
     omega
 
-theorem cellsT_len : DAT.cells.length ≤ 157 := by
+theorem cellsT_len : DAT.cells.length ≤ 159 := by
   rw [ComplJ9ADataRec.j9aDataOf_cells]
   show (Nock.V1J8.Gen.cellsOfRoots DDT.roots).length ≤ _
   rw [rootsT]; decide +kernel
@@ -483,7 +499,7 @@ theorem nVDAT : ComplJ8Of.nVOf DAT = 1 := by
   rw [preadsDAT]
   simp
 
-theorem hMT : ∀ x ∈ ComplJ9ARun.sizesA DAT, x ≤ 157 := by
+theorem hMT : ∀ x ∈ ComplJ9ARun.sizesA DAT, x ≤ 159 := by
   intro x hx
   simp only [ComplJ9ARun.sizesA, ComplJ8Of.sizesJ8, List.mem_append, List.mem_cons, List.not_mem_nil,
     or_false] at hx
@@ -491,7 +507,7 @@ theorem hMT : ∀ x ∈ ComplJ9ARun.sizesA DAT, x ≤ 157 := by
     show (bfsForest [tT]).length = 5
     rw [bfsT]; rfl
   have hC := cellsT_len
-  have hW : (VclL.GenWalk.walkRows DAT.cells DAT.reads).length ≤ 157 := by
+  have hW : (VclL.GenWalk.walkRows DAT.cells DAT.reads).length ≤ 159 := by
     have h := walk_bound DAT.cells DAT.reads (by rw [readsT]; simp)
     rw [readsT] at h ⊢
     simp only [List.length_nil, mul_zero, zero_add] at h
@@ -679,9 +695,9 @@ theorem honestTpl : ∃ χe : CoinsE, ∃ I : InJ9AL,
 
 /-! ## Row counts of the record (bounds, independent of the coin) -/
 
-/-- The exact maximum chip row count of the record on `jp`: the cell table has exactly 157 rows; the other chips have
+/-- The exact maximum chip row count of the record on `jp`: the cell table has exactly 159 rows; the other chips have
 at most 48 (ALU: `3 * 2 ^ hOf aluLen`, `aluLen <= 34`), 32 (J), 6 (A), 5 (X) and 1-2 rows. -/
-def nRowsTpl : ℕ := 157
+def nRowsTpl : ℕ := 159
 
 theorem nRowsTpl_le_768 : nRowsTpl ≤ 3 * 2 ^ 8 := by unfold nRowsTpl; norm_num
 
@@ -692,7 +708,7 @@ theorem alN_le (χe : CoinsE) :
   unfold nRowsTpl
   by_cases hpc : GenPortJ9ALHJRun.pcLK RtP primsJ sJ fJP χe (GenPortJ9AHProj.RnOf tT rT) = []
   · rw [GenPortJ9ALHLink.IL_AL, lRP_off RtP primsJ χe hpc]
-    show 1 ≤ 157
+    show 1 ≤ 159
     norm_num
   · rw [GenPortJ9ALHLink.IL_AL, lRP_on RtP primsJ χe hpc]
     have hlen := rowsB_len RtP primsJ genT χe
@@ -702,14 +718,14 @@ theorem alN_le (χe : CoinsE) :
     have hh : Nock.V1J8.Gen.hOf (Nock.NockVMROM.Thm54.VclL.Handle.ComplJ9ALRun.aluLen (K := KC) deltaF RtP genT primsJ) ≤ 4 :=
       GenPortJ9AHOrb.hOf_go_le _ 4 (aluLen_le.trans (by norm_num)) 64 1 (by norm_num)
     calc 3 * 2 ^ Nock.V1J8.Gen.hOf _ ≤ 3 * 2 ^ 4 := Nat.mul_le_mul_left _ (Nat.pow_le_pow_right (by norm_num) hh)
-      _ ≤ 157 := by norm_num
+      _ ≤ 159 := by norm_num
 
 
 open Nock.NockVMROM.Thm54.VclL.Handle.ComplJ9AOfStatic (mem_N9 mem_nV mem_nX mem_nS)
 
-theorem le_nRows {x b : ℕ} (h : x ≤ b) (hb : b ≤ 157 := by norm_num) : x ≤ nRowsTpl := h.trans hb
+theorem le_nRows {x b : ℕ} (h : x ≤ b) (hb : b ≤ 159 := by norm_num) : x ≤ nRowsTpl := h.trans hb
 
-/-- **The eight non-ALU chips of the record have at most `157` rows** (the cell table has exactly 157). -/
+/-- **The eight non-ALU chips of the record have at most `159` rows** (the cell table has exactly 159). -/
 theorem chipsN_le (χe : CoinsE) :
     (GenPortJ9ALHJRun.recJ9ALXJ RtP primsJ sJ fJP χe tT rT).X.n ≤ nRowsTpl ∧
     (GenPortJ9ALHJRun.recJ9ALXJ RtP primsJ sJ fJP χe tT rT).C.n ≤ nRowsTpl ∧

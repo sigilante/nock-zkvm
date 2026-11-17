@@ -5,7 +5,7 @@
     atoms, `A i j = (3 i + j + 1) mod 11`, `B i j = (i + 2 j + 2) mod 7`; `matRef N` — the product mod `p` by plain
     `ℕ` arithmetic (the independent reference).
   * `matPure N` — the PURE Nock formula: `compile p (matmulT N)` (the jet's own body, no hint, run against the empty
-    registry); `matJetF N` — `[11 [7 [1 0]] c_T]` (`jetCall 7 [1 0] c_T`, as `Demo.matProg` at `N = 2`).
+    registry); `matJetF N` — `[11 [%wild [1 7]] c_T]` (`wildCall 7 c_T`, as `Demo.matProg` at `N = 2`).
   * `Sz` — the row counts of a generated input (compute / cell / walk / J / atom / atom walk), the committed field
     elements `rows × width` per table (widths 123 / 242 / 166 / 71 / 349 / 166, the J-8 chips), their total.
   * `genPure` / `genJet` — `genJ8` (no registry) / `genJ8J` (registry `[7 ↦ matmulT N]`, fuel `2`) at the pseudo-random coins.
@@ -46,7 +46,7 @@ def matRef (N : ℕ) : Noun :=
 def matPure (N : ℕ) : Noun := compile P (matmulT N)
 
 /-- The JETTED program `[11 [7 [1 0]] c_T]`. -/
-def matJetF (N : ℕ) : Noun := Nock.Jet.jetCall 7 (.cell (.atom 1) (.atom 0)) (compile P (matmulT N))
+def matJetF (N : ℕ) : Noun := Nock.Jet.wildCall 7 (compile P (matmulT N))
 
 /-- Cell count of a noun. -/
 def cellsOf : Noun → ℕ

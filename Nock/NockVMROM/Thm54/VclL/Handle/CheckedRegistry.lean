@@ -22,7 +22,7 @@ theorem called_some {R : Registry} {n : ℕ} {s f r : Noun} {t : NTree SkelX}
   have hs := inTree_rowSem h hin
   unfold RowNX.SemN at hs
   rw [hst] at hs
-  obtain ⟨-, -, -, -, id', j, hft', hR, -, -⟩ := hs
+  obtain ⟨-, -, -, -, id', j, -, hft', hR, -, -⟩ := hs
   rw [hft] at hft'
   cases hft'
   exact ⟨j, hR⟩

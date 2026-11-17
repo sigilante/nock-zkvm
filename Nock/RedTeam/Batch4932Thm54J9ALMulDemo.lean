@@ -36,11 +36,11 @@ def idAdd : ℕ := 7
 def aN : ℕ := 2 ^ 70 + 3
 def bN : ℕ := 2 ^ 65 + 11
 def sT : Noun := .cell (.atom aN) (.atom bN)
-def clueT : Noun := .cell (.atom 1) (.atom 0)
-def fT : Noun := .cell (.atom 11) (.cell (.cell (.atom idAdd) clueT) (primC .mul))
+def clueT : Noun := .cell (.atom 1) (.atom idAdd)
+def fT : Noun := .cell (.atom 11) (.cell (.cell (.atom wildTag) clueT) (primC .mul))
 def rT : Noun := .atom (aN * bN)
 def RgT : VerifiedRegistry := addPrims VerifiedRegistry.empty [(idAdd, .mul)]
-def tD : NTree SkelX := mkX .s1 sT clueT (.atom 0) []
+def tD : NTree SkelX := mkX .s1 sT clueT (.atom idAdd) []
 def tT : NTree SkelX := mkX .s11j sT fT rT [tD]
 
 theorem RgT_R : RgT.R idAdd = some (primSpec .mul) :=
@@ -52,13 +52,13 @@ theorem semS_T : (primTemplate .mul).semS sT = some rT := by
   try omega
 
 theorem genT : genX RgT.R 2 sT fT = some (tT, rT) := by
-  have h1 : genX RgT.R 1 sT clueT = some (tD, .atom 0) := by
+  have h1 : genX RgT.R 1 sT clueT = some (tD, .atom idAdd) := by
     simp [genX, genComputeSkeletonX, clueT, tD, mkX]
-  have hj : jetHit RgT.R (.atom idAdd) (primC .mul) sT = some rT := by
+  have hj : jetHit RgT.R (.atom wildTag) (.atom idAdd) (primC .mul) sT = some rT := by
     simp [jetHit, RgT_R, semS_T, primSpec]
   simp only [genX] at h1
   simp only [genX, fT, genComputeSkeletonX]
-  rw [h1, hj]
+  simp only [h1, hj]
   rfl
 
 
@@ -122,18 +122,22 @@ theorem inTree_tT (u : NTree SkelX) (h : InTree tT u) : u = tT ∨ u = tD := by
   rw [bfsT] at this; simpa using this
 
 theorem st_tT : (rowOfSkelX tT.label).st = .s11j := rfl
-theorem ftth_tT : (rowOfSkelX tT.label).ftth = .atom idAdd := rfl
+theorem ftth_tT : (rowOfSkelX tT.label).ftth = .atom wildTag := rfl
+theorem sf1_tT : (rowOfSkelX tT.label).sf1 = .atom idAdd := rfl
 theorem st_tD : (rowOfSkelX tD.label).st = .s1 := rfl
 
 theorem hax9T : ProgAxOK9A pP tT := by
   intro u hu
   rcases inTree_tT u hu with rfl | rfl
-  · show ∀ id, (rowOfSkelX tT.label).ftth = .atom id → id < pP
-    intro id h
-    rw [ftth_tT] at h
-    cases h
-    show idAdd < Nock.Field.p
-    unfold idAdd Nock.Field.p; norm_num
+  · refine ⟨fun id h => ?_, fun id h => ?_⟩
+    · rw [ftth_tT] at h
+      cases h
+      show wildTag < Nock.Field.p
+      unfold wildTag Nock.Field.p; norm_num
+    · rw [sf1_tT] at h
+      cases h
+      show idAdd < Nock.Field.p
+      unfold idAdd Nock.Field.p; norm_num
   · show True
     trivial
 
@@ -146,7 +150,7 @@ theorem hop5T : Nock.NockVMROM.Thm54.VclL.Handle.ComplJ8.ProgOp5OK pP tT := by
 theorem calledT : ∀ id ∈ CalledIds tT, id = idAdd := by
   rintro id ⟨u, hu, hst, hid⟩
   rcases inTree_tT u hu with rfl | rfl
-  · rw [ftth_tT] at hid; cases hid; rfl
+  · rw [sf1_tT] at hid; cases hid; rfl
   · rw [st_tD] at hst; cases hst
 
 open Nock.NockVMROM.Thm54.VclL.Handle.ComplJ9AGen (LX9 genX9T rowsOfT9 rowX9)

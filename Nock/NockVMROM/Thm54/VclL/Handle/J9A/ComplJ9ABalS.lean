@@ -151,7 +151,7 @@ theorem sBody_congr (χ : Coins frameJ8 K) (e1 e2 : Nock.Reified.Env (ZMod p))
   rw [← inv_inv (DX δ (Compute.TowerD.gatherEnv b e1) e1 ChipHX.jetRecX),
     ← inv_inv (DX δ (Compute.TowerD.gatherEnv b e2) e2 ChipHX.jetRecX),
     ComplJ8OfBalJ.DX_jet δ b e1 χ h1, ComplJ8OfBalJ.DX_jet δ b e2 χ h2]
-  simp only [ChipHX.jetRecX, ChipHX.xFtth, ChipHX.xFttt, ChipHX.xL1, ChipHX.xL2, ChipHX.xFtt, ChipHX.xS,
+  simp only [ChipHX.jetRecX, ChipHX.xSf1, ChipHX.xFtth, ChipHX.xFttt, ChipHX.xL1, ChipHX.xL2, ChipHX.xFtt, ChipHX.xS,
     ChipHX.xE, ChipHX.hdX, ChipHX.RE.ev, List.map_cons, List.map_nil]
   simp (disch := omega) only [h]
 

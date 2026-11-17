@@ -220,9 +220,9 @@ theorem jetT_rowG (hax : ProgAxOK p t)
   unfold ComplJ8OfBalG.jetT
   rw [DX_jet δ b _ χ rfl, htr, HonestCompX.colX_st _ _ _ _ _ 16 (by decide)]
   have hmap : ∀ tr : ℕ → ZMod p, ChipHX.jetRecX.map (ChipHX.RE.ev tr) =
-      [tr 44, tr 41, tr 42, tr 25, tr 26, tr 29, tr 30, ((3 : ℕ) : ZMod p)] := fun tr => rfl
+      [tr 32, tr 41, tr 42, tr 25, tr 26, tr 29, tr 30, ((3 : ℕ) : ZMod p)] := fun tr => rfl
   rw [hmap]
-  simp only [HonestCompX.cxFtth_v, HonestCompX.cxFtt_k, HonestCompX.cxFtt_v, HonestCompX.cxS_k,
+  simp only [HonestCompX.cxSf1_v, HonestCompX.cxFtt_k, HonestCompX.cxFtt_v, HonestCompX.cxS_k,
     HonestCompX.cxS_v, HonestCompX.cxE_k, HonestCompX.cxE_v]
   unfold Fu
   by_cases hst : rr.st = .s11j

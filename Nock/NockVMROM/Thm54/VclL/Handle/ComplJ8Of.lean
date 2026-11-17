@@ -1346,7 +1346,7 @@ theorem calls_lt {R : Nock.Jet.Registry} {fuel : ℕ} {s f r : Noun} {t : NTree 
   have h := hax u hu
   unfold AxRowX at h
   rw [hst] at h
-  exact h _ hft
+  exact h.2 _ hft
 
 end Called
 

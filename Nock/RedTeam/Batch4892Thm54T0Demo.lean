@@ -57,20 +57,20 @@ def RgN : Nock.Jet.VerifiedRegistry := CN.toVR
 abbrev RtN : ℕ → Tpl := CN.Rt
 
 def sN : Noun := .cell (.atom 3) (.atom (pG + 5))
-def fC : Noun := .cell (.atom 1) (.atom 0)
-def fJ : Noun := .cell (.atom 11) (.cell (.cell (.atom 7) fC) (compile pG TN))
+def fC : Noun := .cell (.atom 1) (.atom 7)
+def fJ : Noun := .cell (.atom 11) (.cell (.cell (.atom Nock.Jet.wildTag) fC) (compile pG TN))
 def rN : Noun := .cell (.atom 9) (.cell (.atom (pG + 5)) (.atom 0))
 
 theorem jetN_sem : TN.sem pG sN = some rN := by decide +kernel
 
-theorem jetN : Nock.Edit.GenX.jetHit RgN.R (.atom 7) (compile pG TN) sN = some rN := by
+theorem jetN : Nock.Edit.GenX.jetHit RgN.R (.atom Nock.Jet.wildTag) (.atom 7) (compile pG TN) sN = some rN := by
   decide +kernel
 
 
-def tC : NTree SkelX := mkX .s1 sN fC (.atom 0) []
+def tC : NTree SkelX := mkX .s1 sN fC (.atom 7) []
 def tJ : NTree SkelX := mkX .s11j sN fJ rN [tC]
 
-theorem gC : genX RgN.R 1 sN fC = some (tC, .atom 0) := rfl
+theorem gC : genX RgN.R 1 sN fC = some (tC, .atom 7) := rfl
 
 theorem genN : genX RgN.R 2 sN fJ = some (tJ, rN) := by
   have h := gC
@@ -176,7 +176,7 @@ theorem haxN : ComplJ8.ProgAxOK pG tJ := by
   rcases inTree_tJ u hu with rfl | rfl
   all_goals
     unfold ComplJ8.AxRowX
-    simp [rowOfSkelX, tJ, tC, mkX, fJ, fC, VclL.hdN, VclL.tlN]
+    simp [rowOfSkelX, tJ, tC, mkX, fJ, fC, VclL.hdN, VclL.tlN, kidE, SkelX.row]
   all_goals decide
 
 theorem hax9N : ComplJ9ABinders.ProgAxOK9A pG tJ := ComplJ9ABinders.progAxOK9A_of_progAxOK haxN

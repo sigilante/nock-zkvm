@@ -257,7 +257,7 @@ theorem callsIds_calledIds {R : Nock.Jet.Registry} {n : ℕ} {s f r : Noun} {t :
     have hs := inTree_rowSem h hin
     unfold RowNX.SemN at hs
     rw [hst] at hs
-    obtain ⟨-, -, -, -, id', j, hft', hR, -, -⟩ := hs
+    obtain ⟨-, -, -, -, id', j, -, hft', hR, -, -⟩ := hs
     simp only [hst, if_true, Option.some.injEq, Prod.mk.injEq] at hrc
     obtain ⟨rfl, -⟩ := hrc
     refine ⟨u, hin, hst, ?_⟩

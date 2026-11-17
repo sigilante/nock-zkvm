@@ -73,13 +73,18 @@ theorem primC_mem_cells (hnd : (prims.map Prod.fst).Nodup)
     rw [if_pos (by rw [ComplJ8Jet.rowOfSkelX_st]; exact hst)] at hrc
     exact (Option.some.inj hrc).symm
   rcases genX_inTree hgen huc with ⟨m, hm⟩ | hch
-  · obtain ⟨bb, clue, body, r', hf, hj⟩ := ComplJ8Jet.genX_s11j hm hst
-    obtain ⟨id, j, rfl, hRj, hjc, -⟩ := jetHit_spec hj
-    -- the id read off the row is `q.1`
-    have hftth : (rowOfSkelX u.label).ftth = .atom id := by
+  · obtain ⟨bb, clue, body, v, r', hf, hj⟩ := ComplJ8Jet.genX_s11j hm hst
+    obtain ⟨id0, j0, rfl, rfl, -, -, -⟩ := jetHit_spec hj
+    -- the id read off the row (its clue value `sf1`) is `q.1`
+    have hs := inTree_rowSem hgen huc
+    unfold RowNX.SemN at hs
+    rw [ComplJ8Jet.rowOfSkelX_st, hst] at hs
+    obtain ⟨-, -, -, -, id, j, -, hftth, hRj, hjc, -⟩ := hs
+    have hftt : (rowOfSkelX u.label).ftt = body := by
       unfold rowOfSkelX
       rw [hst]
       simp only [hf, tlN, hdN]
+    rw [hftt] at hjc
     have hid : id = q.1 := by
       rw [← hcl1, hcl', hftth]; rfl
     subst hid

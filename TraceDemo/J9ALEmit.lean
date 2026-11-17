@@ -132,10 +132,10 @@ def pubeqJson (I : InJ9AL) (hv : ValidJ8 I.toInJ8) : Json :=
 /-- The primitive table of the default run (empty: the registry is `fun _ => none`). -/
 def primsL : List (ℕ × Nock.Jet.Prim.PrimOp) := []
 
-/-- Prims mode: `*[[a b] [11 [7 [1 0]] (primC op)]]` with the primitive `op` registered at id 7. -/
+/-- Prims mode: `*[[a b] [11 [%wild [1 7]] (primC op)]]` with the primitive `op` registered at id 7. -/
 def primProg (op : Nock.Jet.Prim.PrimOp) (a b : ℕ) : Noun × Noun :=
   (.cell (.atom a) (.atom b),
-   .cell (.atom 11) (.cell (.cell (.atom 7) (.cell (.atom 1) (.atom 0))) (Nock.Jet.Prim.primC op)))
+   Nock.Jet.wildCall 7 (Nock.Jet.Prim.primC op))
 
 def primsMode : String → Option (Nock.Jet.Prim.PrimOp × ℕ × ℕ)
   | "add" => some (.add, Nock.Field.p + 5, Nock.Field.p + 7)

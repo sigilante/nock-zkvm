@@ -170,10 +170,10 @@ end Words
 section Gen
 
 /-- **A generated `s11j` node is a jet hit with the node's own result**: the formula is `[11 [b clue] body]` and
-`jetHit R b body s` is the evaluation `r`. -/
+`jetHit R b v body s` is the evaluation `r`, at the clue's value `v`. -/
 theorem genX_s11j_eval {R : Registry} {n : ℕ} {s f : Noun} {t : NTree SkelX} {r : Noun}
     (h : genX R n s f = some (t, r)) (hst : t.label.state = .s11j) :
-    ∃ b clue body, f = .cell (.atom 11) (.cell (.cell b clue) body) ∧ jetHit R b body s = some r := by
+    ∃ b clue body v, f = .cell (.atom 11) (.cell (.cell b clue) body) ∧ jetHit R b v body s = some r := by
   rcases n with _ | n
   · simp [genComputeSkeletonX] at h
   unfold genComputeSkeletonX at h
@@ -184,7 +184,7 @@ theorem genX_s11j_eval {R : Registry} {n : ℕ} {s f : Noun} {t : NTree SkelX} {
     | (exfalso; simp at h; done)
     | (simp only [Option.some.injEq, Prod.mk.injEq] at h
        obtain ⟨rfl, rfl⟩ := h
-       exact ⟨_, _, _, rfl, by assumption⟩)
+       exact ⟨_, _, _, _, rfl, by assumption⟩)
 
 /-- **The run's view of one primitive call**: the `s11j` row of a generated tree whose id is a primitive id of a
 registry carrying `primSpec` there, with `op ≠ dec`, has subject `[x y]` (atoms), result `primSem op x y`. -/
@@ -203,12 +203,13 @@ theorem prim_row {Rg : VerifiedRegistry} {fuel : ℕ} {s f r : Noun} {t : NTree 
   subst hct
   have hstu : u.label.state = .s11j := by rw [← ComplJ8Jet.rowOfSkelX_st]; exact hst
   rcases genX_inTree hgen huc with ⟨m, hm⟩ | hch
-  · obtain ⟨b, clue, body, hf, hj⟩ := genX_s11j_eval hm hstu
-    obtain ⟨id, j, rfl, hRj, -, hrel⟩ := jetHit_spec hj
-    have hftth : (rowOfSkelX u.label).ftth = .atom id := by
-      unfold rowOfSkelX
-      rw [hstu]
-      simp only [hf, tlN, hdN]
+  · have hs := inTree_rowSem hgen huc
+    unfold RowNX.SemN at hs
+    rw [hst] at hs
+    obtain ⟨-, -, -, -, id, j, -, hftth, hRj, -, hrel⟩ := hs
+    rw [ComplJ8Jet.rowOfSkelX_s] at hrel
+    have he : (rowOfSkelX u.label).e = u.label.evaluation := ComplJ9ABase.rowOfSkelX_e _
+    rw [he] at hrel
     rw [hftth] at hid ⊢
     obtain ⟨q, hq, hq1⟩ := List.mem_map.mp hid
     simp only [atomV] at hq1 ⊢

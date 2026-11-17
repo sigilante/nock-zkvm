@@ -1,9 +1,9 @@
 # Jets as a hint kind: `%wild`
 
-A proposal against REL-5.4 (`7a51d916`), as a branch. Status: **layer
-1 of 3 is done and builds; layers 2 and 3 are not started, and the
-headline theorems do not build on this branch.** The purpose of the
-branch is to show the change and its price, not to be merged as is.
+A proposal against REL-5.4 (`7a51d916`), as a branch. Status: see
+the end of layer 2. Layer 3, the end-to-end package, is not
+started. The purpose of the branch is to show the change and its
+price, not to be merged as is.
 
 ## The change
 
@@ -62,7 +62,9 @@ key is bound to the program (below), and two new gates.
   depend on the subject (a clue `[0 2]`, say). The machine is not
   zero-knowledge, so no claimed property is lost, but a caller who
   wants constant keys should write constant clues.
-- **`wildTag < p` becomes a hypothesis.** See layer 2.
+- **The key is not a formula atom.** Completeness bounds that
+  covered the key as a leaf of the formula need a separate
+  hypothesis (`JetKeyX`, layer 2).
 
 ## Layer 1: generator and row semantics (done)
 
@@ -81,67 +83,76 @@ Nock.RedTeam.Batch2653Thm54GenX` succeeds. The printed axioms of
 
 Row counts in the demo are unchanged: 2 rows jetted, 2999 unjetted.
 
-## Layer 2: prover data and the compute chip (not started)
+## Layer 2: the compute chip and the library proofs
 
-The `scripts/delivery-axioms.lean` import set was built once
-against the generator change. Two modules failed:
-`Nock/Edit/GenXDemo.lean`, since fixed and part of layer 1, and
-`Handle/ComplJ8Jet.lean`. Nothing that imports the latter was
-attempted, and the set has not been rebuilt since. `ComplJ8Jet` is
-the boundary because from there on the jet id is read from the
-**tag column** `ftth`:
+### The chip
 
-- `CalledIds` (`Handle/ComplJ8Jet.lean:39`) and `callsOf`
-  (`Nock/V1J8/GenJet.lean:49`) collect `atomV r.ftth`.
-- The chip's jet lookup record `jetRecX`
-  (`Handle/ChipHX.lean:350`) is keyed on `xFtth.v`, and the gate
-  `s11G` pins `xFtth.k = 0`.
-- The row-bound predicates (`HonestRowX`, `ComplJ8`,
-  `ComplJ9ABinders`) bound the id as `ftth = atom id → id < p`.
-- The handle-level row semantics (`Handle/LocalVSX.lean:148`) reads
-  `ftth = (0, id)`, and `RowOutputNX` at `s11j`
-  (`Nock/Edit/GenuineNX.lean:64`) reads the id from the formula.
+`Handle/ChipHX.lean` is the one chip definition for every revision
+(`ChipHX9` reuses it). On `s11j` rows:
 
-The intended change is uniform:
+| | REL-5.4 | this branch |
+|---|---|---|
+| jet record `jetRecX`, first field | `xFtth.v` (the tag) | `xSf1.v` (the clue's value) |
+| tag | `xFtth.k = 0` (a small atom) | `xFtth.k = 0` and `xFtth.v = wildTag` |
+| clue value | unconstrained beyond the child label | `xSf1.k = 0` (a small atom) |
 
-1. Key the record on the clue-value column: `xFtth.v` becomes
-   `xSf1.v` in `jetRecX`.
-2. Two gates on `s11j` rows: `xFtth.v = wildTag`, and `xSf1.k = 0`
-   (the clue value is a small atom). The existing `xFtth.k = 0`
-   stays. These gates are not needed for a right result; they are
-   needed to state the row semantics (`ftth = (0, wildTag)`,
-   `sf1 = (0, id)`).
-3. Read `sf1` wherever a call's id is collected or bounded. The
-   bound `id < p` moves with it: a key at or above `p` is a big
-   atom and cannot be jetted, as in REL-5.4.
-4. Carry `wildTag < p` as a hypothesis. The tag gate is an equation
-   in the field, and the chip lemmas are generic in `p`. At
-   Goldilocks it holds. At a toy field such as `p = 101`, `%wild`
-   is a big atom and the small atom `wildTag mod p` would pass the
-   gate in its place.
+That is two arithmetic gates and one equality gate, and no new
+column: `sf1` already held the clue's value, bound to the clue
+formula by the child label `(s, fttt, sf1)`. `ChipHX.s11j_wild`
+exports the two new facts. `wildTag` lives in `Nock/Jet/Wild.lean`,
+which imports nothing, so the generator and the chip name the same
+constant.
 
-There is one chip definition for all revisions (`ChipHX`, reused
-by `ChipHX9`), so the chip edit is made once. 109 files name one of
-`jetRecX`, `s11G`, `CalledIds`, `callsOf`, `s11j_node` or
-`genX_s11j`:
+### Soundness side
 
-```
-grep -rlE "jetRecX|s11G|CalledIds|callsOf|s11j_node|genX_s11j" \
-  --include='*.lean' Nock nockvm-e2e TraceDemo | wc -l
-```
+The row predicates that soundness goes through
+(`GenuineNX.RowOutputNX`, `LocalVSX.RowSemX0`,
+`RowSemChipX.sem_s11j`) take the jet id from the clue child's value
+and **do not mention the tag**. `evalN` ignores the tag, so
+soundness has no use for it. One consequence: no `wildTag < p`
+hypothesis enters the soundness chain. At a toy field where `%wild`
+is a big atom, the tag gate admits `wildTag mod p` in its place,
+and that costs nothing, because no soundness statement reads the
+tag. (The reviewers of layer 1 had expected this hypothesis to be
+needed; keeping the tag out of these predicates avoids it.)
 
-That is a measure of reach, not a count of proofs that break. Files
-that use the tag column as an id without naming one of those are
-not in it.
+These modules are in the import closure of the J-8 soundness bound
+(`Handle/LinkJ8A.lean`), so on this branch the bound is re-proved
+against the new chip, not inherited.
 
-Until layer 2 lands, the generator emits the new form and the chip
-still accepts the earlier one. The J-8 soundness bound
-(`Handle/LinkJ8A.lean`) does not import the generator, so it is
-untouched and still holds, for the earlier-form chip. The
-non-vacuity theorems and everything in the delivery set import the
-generator and do not build, so on this branch they are not checked.
-Statements about the chip no longer connect to the generator's
-output; that costs completeness and consistency, not soundness.
+### Completeness side
+
+The per-row bounds (`HonestRowX.SmallX`, `ComplJ8.AxRowX`,
+`ComplJ9ABinders.AxRowX9A`, `HonestCompX.RowOKX`) bound both the
+tag and the clue value on jet rows. Call lists (`callsOf`,
+`CalledIds`, the J-9 AL call tables) read `sf1`.
+
+**One new hypothesis.** The honest-satisfaction theorems bound
+every axis and id through `FormLeafX`: every atom of every formula
+is small. A key that is the clue's *value* is not an atom of the
+formula, so `FormLeafX` no longer covers it. `HonestPairX.JetKeyX q t`
+states it directly: on every jet row, the clue's value, when an
+atom, is below `q`. It is a hypothesis of
+`computeChipVCLHX_honest_sat_tree` and `smallX_of_tree`; the
+concrete inhabitant discharges it (`InhabJ8Comp.jetKey0`). A
+constant clue `[1 id]` with `FormLeafX` implies it. Requiring the
+clue to be syntactically `[1 id]` would remove the hypothesis at
+the cost of one more cell decode per jet row.
+
+### Test programs and literals
+
+Hand-written jet programs in the headline set are restated in the
+new form: the J-9 AL toy facts and the `mul`/`lt`/`div` demos, the
+template-jet twin of `jp` (`Batch4939`, whose two calls now carry
+their own clues `[1 7]` and `[1 8]`), the T0 demo, and the ALU
+attack negative controls. The executables that generate demo runs
+(`J8Dump`, `D5RedMain`, `J9ALEmit`) and `V1J8/D5Sizes` emit the new
+form.
+
+`Batch4771` is a literal trace printed by `nockvm-j8dump jet`; it is
+regenerated with that tool, not edited.
+
+### Status
 
 ## Layer 3: the end-to-end package (not started)
 

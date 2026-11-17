@@ -137,6 +137,12 @@ now dispatches on the tag `%wild` with the id as the clue's value (`wildCall`), 
 is an ordinary dynamic hint there.  The `evalN` facts in §D hold for any dynamic hint. -/
 def jetCall (n : ℕ) (d c : Noun) : Noun := hint (.atom n) d c
 
+/-- **A jet call on the wire**: `[11 [%wild [1 id]] c]`.  The tag `%wild` names the hint kind; the
+jet key `id` is the value of the clue, here the constant `[1 id]` (one `s1` row).  Any clue whose
+value is the atom `id` dispatches the same way. -/
+def wildCall (id : ℕ) (c : Noun) : Noun :=
+  hint (.atom wildTag) (.cell (.atom 1) (.atom id)) c
+
 /-- **`evalN_hint_jet`**: if the clue `d` computes, the hinted call evaluates as its body `c`. -/
 theorem evalN_hint_jet {fuel : ℕ} {s id d c v : Noun} (hd : Nock.evalN fuel s d = some v) :
     Nock.evalN (fuel + 1) s (hint id d c) = Nock.evalN fuel s c := by

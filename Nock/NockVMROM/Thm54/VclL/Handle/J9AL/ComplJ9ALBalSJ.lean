@@ -254,9 +254,9 @@ variable {p : ℕ} [Fact p.Prime] {K : Type} [Field K] [Algebra (ZMod p) K] [Fin
 
 local notation "𝕂′" => Quad (algebraMap (ZMod p) K δ)
 
-/-- **The compute `keyJet` consume of a row**: `jetRecX` at the row's handles `(v(ftth), h(ftt), h(s), h(e), 3)`. -/
+/-- **The compute `keyJet` consume of a row**: `jetRecX` at the row's handles `(v(sf1), h(ftt), h(s), h(e), 3)`. -/
 def kRow (H : Noun → ℕ × ℕ) (rr : RowNX) : List (ZMod p) :=
-  [HonestCompX.hv (F := ZMod p) H rr.ftth, HonestCompX.hk (F := ZMod p) H rr.ftt,
+  [HonestCompX.hv (F := ZMod p) H rr.sf1, HonestCompX.hk (F := ZMod p) H rr.ftt,
     HonestCompX.hv (F := ZMod p) H rr.ftt, HonestCompX.hk (F := ZMod p) H rr.s, HonestCompX.hv (F := ZMod p) H rr.s,
     HonestCompX.hk (F := ZMod p) H rr.e, HonestCompX.hv (F := ZMod p) H rr.e, ((3 : ℕ) : ZMod p)]
 
@@ -279,9 +279,9 @@ theorem jetT_row_gen (H : Noun → ℕ × ℕ) (pd : RowNX → ℕ × (ℕ × �
   unfold ComplJ8OfBalG.jetT
   rw [DX_jet δ b _ χ rfl, htr, HonestCompX.colX_st _ _ _ _ _ 16 (by decide)]
   have hmap : ∀ tr : ℕ → ZMod p, ChipHX.jetRecX.map (ChipHX.RE.ev tr) =
-      [tr 44, tr 41, tr 42, tr 25, tr 26, tr 29, tr 30, ((3 : ℕ) : ZMod p)] := fun tr => rfl
+      [tr 32, tr 41, tr 42, tr 25, tr 26, tr 29, tr 30, ((3 : ℕ) : ZMod p)] := fun tr => rfl
   rw [hmap]
-  simp only [HonestCompX.cxFtth_v, HonestCompX.cxFtt_k, HonestCompX.cxFtt_v, HonestCompX.cxS_k,
+  simp only [HonestCompX.cxSf1_v, HonestCompX.cxFtt_k, HonestCompX.cxFtt_v, HonestCompX.cxS_k,
     HonestCompX.cxS_v, HonestCompX.cxE_k, HonestCompX.cxE_v]
   unfold Fk
   by_cases hst : rr.st = .s11j
@@ -353,7 +353,7 @@ theorem prim_key (hax9 : ProgAxOK9A p t)
   have hsem := inTree_rowSem hgen hin
   unfold RowNX.SemN at hsem
   rw [← hrr, hst] at hsem
-  obtain ⟨-, -, -, -, id, j, hft, hRj, hjc, -⟩ := hsem
+  obtain ⟨-, -, -, -, id, j, -, hft, hRj, hjc, -⟩ := hsem
   have hrowM : rr ∈ (rowsOfT t).toList := by
     simp only [rowsOfT, List.toList_toArray]
     exact List.mem_map.mpr ⟨u, hu, rfl⟩
@@ -395,7 +395,7 @@ theorem Fk_split (hax9 : ProgAxOK9A p t)
       have hsem0 := inTree_rowSem hgen hin
       unfold RowNX.SemN at hsem0
       rw [← hrr, hst] at hsem0
-      obtain ⟨-, -, -, -, id, j, hft, hRj, hjc, hrel⟩ := hsem0
+      obtain ⟨-, -, -, -, id, j, -, hft, hRj, hjc, hrel⟩ := hsem0
       have hcalled : id ∈ CalledIds t := ⟨u, hin, hst, hft⟩
       rw [hft] at hid
       rw [(hRtJ id hcalled (by simpa [atomV] using hid)).1] at hRj

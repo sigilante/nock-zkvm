@@ -457,7 +457,7 @@ def tinyT : Tpl where
 def tinyS : Nock.Noun := nC (nA 0) (nC (nC (nA 3) (nA 4)) (nA 0))
 
 def tinyProg : Nock.Noun :=
-  Nock.Jet.jetCall 7 (nC (nA 1) (nA 0)) (Nock.Jet.Autogen.compile P tinyT)
+  Nock.Jet.wildCall 7 (Nock.Jet.Autogen.compile P tinyT)
 
 def genTiny (χ : CoinsE) : Except String InJ8 :=
   match genJ8J (fun _ => tinyT) [7] 2 tinyS tinyProg χ with

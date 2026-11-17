@@ -57,7 +57,7 @@ theorem calls_lt9 (hax9 : ProgAxOK9A p t) :
   have h := hax9 u hu
   unfold AxRowX9A at h
   rw [hst] at h
-  exact h _ hft
+  exact h.2 _ hft
 
 /-- **The static obligation** (J-8's `stat_run`, with `hax` replaced by the call-id bound `hlt` and the row binder
 by the three sizes it reads). -/

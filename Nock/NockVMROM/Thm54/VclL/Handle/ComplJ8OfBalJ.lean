@@ -985,12 +985,12 @@ include hgen in
 theorem s11j_row (hRt : ∀ id ∈ CalledIds t, Rg.R id = some ⟨(Rt id).toTemplate p, compile p (Rt id)⟩ ∧
       axPosB (Rt id) = true ∧ (Rt id).WellTyped p)
     {u : NTree SkelX} (hin : InTree t u) (hst : (rowOfSkelX u.label).st = .s11j) :
-    ∃ id, (rowOfSkelX u.label).ftth = .atom id ∧ (rowOfSkelX u.label).ftt = compile p (Rt id) ∧
+    ∃ id, (rowOfSkelX u.label).sf1 = .atom id ∧ (rowOfSkelX u.label).ftt = compile p (Rt id) ∧
       (Rt id).sem p (rowOfSkelX u.label).s = some (rowOfSkelX u.label).e := by
   have h := inTree_rowSem hgen hin
   unfold RowNX.SemN at h
   rw [hst] at h
-  obtain ⟨-, -, -, -, id, j, hft, hRj, hjc, hrel⟩ := h
+  obtain ⟨-, -, -, -, id, j, -, hft, hRj, hjc, hrel⟩ := h
   have hcalled : id ∈ CalledIds t := ⟨u, hin, hst, hft⟩
   rw [(hRt id hcalled).1] at hRj
   cases Option.some.inj hRj
@@ -1035,9 +1035,9 @@ theorem jetT_row (hax : ProgAxOK p t)
   unfold ComplJ8OfBalG.jetT
   rw [DX_jet δ b _ χ rfl, htr, HonestCompX.colX_st _ _ _ _ _ 16 (by decide)]
   have hmap : ∀ tr : ℕ → ZMod p, ChipHX.jetRecX.map (ChipHX.RE.ev tr) =
-      [tr 44, tr 41, tr 42, tr 25, tr 26, tr 29, tr 30, ((3 : ℕ) : ZMod p)] := fun tr => rfl
+      [tr 32, tr 41, tr 42, tr 25, tr 26, tr 29, tr 30, ((3 : ℕ) : ZMod p)] := fun tr => rfl
   rw [hmap]
-  simp only [HonestCompX.cxFtth_v, HonestCompX.cxFtt_k, HonestCompX.cxFtt_v, HonestCompX.cxS_k,
+  simp only [HonestCompX.cxSf1_v, HonestCompX.cxFtt_k, HonestCompX.cxFtt_v, HonestCompX.cxS_k,
     HonestCompX.cxS_v, HonestCompX.cxE_k, HonestCompX.cxE_v]
   unfold Fu
   by_cases hst : rr.st = .s11j

@@ -91,7 +91,8 @@ theorem stA : aM.state = .s11j := by decide +kernel
 theorem stB : bM.state = .s1 := by decide +kernel
 theorem rstA : (rowOfSkelX aM).st = .s11j := by decide +kernel
 theorem rstB : (rowOfSkelX bM).st = .s1 := by decide +kernel
-theorem ftthA : (rowOfSkelX aM).ftth = .atom 7 := by decide +kernel
+theorem ftthA : (rowOfSkelX aM).ftth = .atom Nock.Jet.wildTag := by decide +kernel
+theorem sf1A : (rowOfSkelX aM).sf1 = .atom 7 := by decide +kernel
 
 theorem matAx : Nock.Jet.ChipJ8.axPosB (matmulT 2) = true := by decide +kernel
 theorem matAxLt : ∀ i, (matmulT 2).ax i < Nock.Field.p := by decide +kernel
@@ -109,8 +110,9 @@ theorem hax9M : ComplJ9ABinders.ProgAxOK9A Nock.Field.p tM := by
   rcases inTree_tM u hu with rfl | rfl
   · show ComplJ9ABinders.AxRowX9A _ (rowOfSkelX aM)
     simp only [ComplJ9ABinders.AxRowX9A, rstA]
-    intro id h
-    rw [ftthA] at h; cases h; decide
+    refine ⟨fun id h => ?_, fun id h => ?_⟩
+    · rw [ftthA] at h; cases h; decide
+    · rw [sf1A] at h; cases h; decide
   · show ComplJ9ABinders.AxRowX9A _ (rowOfSkelX bM)
     simp only [ComplJ9ABinders.AxRowX9A, rstB]
 

@@ -346,11 +346,11 @@ open Nock.Jet.Autogen (Tpl compile)
 def JetB (p : ℕ) (R : Registry) (t : NTree SkelX) : Prop :=
   ∀ id ∈ CalledIds t, ∃ T : Tpl, R id = some ⟨T.toTemplate p, compile p T⟩ ∧ T.WellTyped p
 
-/-- **A row is bounded by `K`**: its twelve handles are, and a jet row names its registered entry (atom id,
-entry formula = the hinted body `ftt`). -/
+/-- **A row is bounded by `K`**: its twelve handles are, and a jet row names its registered entry (the clue's
+value `sf1` is the atom id, entry formula = the hinted body `ftt`). -/
 def NodeOK (R : Registry) (K : ℕ) (u : NTree SkelX) : Prop :=
   (∀ x ∈ rowHandleNounsX (rowOfSkelX u.label), Bnd K x) ∧
-    ((rowOfSkelX u.label).st = .s11j → ∃ id j, (rowOfSkelX u.label).ftth = .atom id ∧ R id = some j ∧
+    ((rowOfSkelX u.label).st = .s11j → ∃ id j, (rowOfSkelX u.label).sf1 = .atom id ∧ R id = some j ∧
       j.c = (rowOfSkelX u.label).ftt)
 
 theorem nodeOK_mono {R : Registry} {K K' : ℕ} (hK : K ≤ K') {u : NTree SkelX} (h : NodeOK R K u) :
@@ -653,23 +653,24 @@ theorem gen_bnd {p : ℕ} (hp : 2 ≤ p) {R : Registry} {n : ℕ} {s f : Noun} {
     simp only [genComputeSkeletonX, hcl, hj, Option.some.injEq, Prod.mk.injEq] at h
     obtain ⟨rfl, rfl⟩ := h
     intro M hM hJ h5 hs hf
-    obtain ⟨id, j, rfl, hRj, hc, hrel⟩ := jetHit_spec hj
+    obtain ⟨id, j, rfl, rfl, hRj, hc, hrel⟩ := jetHit_spec hj
     simp only [bnd_cell, bnd_atom] at hf
     obtain ⟨hop, ⟨hfb, hfcl⟩, hfbody⟩ := hf
     obtain ⟨hr1, hn1⟩ := ih1 hcl M hM (jetB_child hJ (by simp)) (op5_child h5 (by simp)) hs (by assumption)
-    have hid : id ∈ CalledIds (mkX .s11j s (.cell (.atom 11) (.cell (.cell (.atom id) clue) body)) r1 [t1]) :=
-      ⟨_, InTree.here _, by simp [rowOfSkelX], by simp [rowOfSkelX, hdN, tlN]⟩
+    have e1 := (genX_label hcl).2.2.1
+    have hid : id ∈ CalledIds
+        (mkX .s11j s (.cell (.atom 11) (.cell (.cell (.atom wildTag) clue) body)) r1 [t1]) :=
+      ⟨_, InTree.here _, by simp [rowOfSkelX], by simp [rowOfSkelX, kidE, SkelX.row, e1]⟩
     obtain ⟨T, hRT, hT⟩ := hJ id hid
     rw [hRj, Option.some.injEq] at hRT
     subst hRT
     have hrB : Bnd M r1 := bnd_semS (by omega) hM T hT hrel hs
-    have e1 := (genX_label hcl).2.2.1
-    have hsz := size_mkX .s11j s (.cell (.atom 11) (.cell (.cell (.atom id) clue) body)) r1 [t1]
+    have hsz := size_mkX .s11j s (.cell (.atom 11) (.cell (.cell (.atom wildTag) clue) body)) r1 [t1]
     simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil] at hsz
     refine ⟨bnd_mono' hrB (by omega), nodes_mkX ⟨?_, ?_⟩ ?_⟩
     · root_tac
     · intro _
-      refine ⟨id, _, by simp [rowOfSkelX, hdN, tlN], hRj, ?_⟩
+      refine ⟨id, _, by simp [rowOfSkelX, kidE, SkelX.row, e1], hRj, ?_⟩
       simp only [mkX_label, rowOfSkelX, hdN, tlN]
       exact hc
     · intro k hk u hu

@@ -1,6 +1,6 @@
 /-
   Nock/RedTeam/Batch4773Thm54NVJetC.lean  
-  The cell chip `checkCellKW (tabC Ijet) = true`, SPLIT: `checkCellKW = checkM` is a conjunction over the 122 rows
+  The cell chip `checkCellKW (tabC Ijet) = true`, SPLIT: `checkCellKW = checkM` is a conjunction over the 123 rows
   (each row: every source gate) and the fixed columns; the monolithic `decide +kernel` is OOM-killed at 20 GB, so each
   chunk of rows is its own `decide +kernel` declaration.
 -/
@@ -48,7 +48,7 @@ theorem ijet_C_r6 : ∀ j ∈ List.range' 96 16, rowAt j = true := by decide +ke
 
 theorem ijet_C_r7 : ∀ j ∈ List.range' 112 16, rowAt j = true := by decide +kernel
 
-theorem ijet_Cn : Ijet.C.n = 122 := by decide +kernel
+theorem ijet_Cn : Ijet.C.n = 123 := by decide +kernel
 
 /-- **The cell chip accepts `Ijet`**, from the row chunks and the fixed-column check. -/
 theorem ijet_C : checkCellKW (tabC Ijet) = true := by
