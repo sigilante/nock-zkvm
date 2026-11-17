@@ -221,7 +221,8 @@ def RowOKX (p : ℕ) (r : RowNX) : Prop :=
   | .s11d => r.fh = .atom 11 ∧ r.f = .cell r.fh r.ft ∧ r.ft = .cell r.fth r.ftt ∧
       r.fth = .cell r.ftth r.fttt ∧ r.fttt.isCell = true ∧ r.ftt.isCell = true
   | .s11j => r.fh = .atom 11 ∧ r.f = .cell r.fh r.ft ∧ r.ft = .cell r.fth r.ftt ∧
-      r.fth = .cell r.ftth r.fttt ∧ (∃ id, id < p ∧ r.ftth = .atom id) ∧ r.fttt.isCell = true
+      r.fth = .cell r.ftth r.fttt ∧ (Nock.Jet.wildTag < p ∧ r.ftth = .atom Nock.Jet.wildTag) ∧
+      (∃ id, id < p ∧ r.sf1 = .atom id) ∧ r.fttt.isCell = true
 
 /-- **The α-pair limb data's local condition** (on an `isPair` row): limb kinds are bits, not both
 suffix rows, and two small limbs differ in `F`. -/
@@ -939,9 +940,10 @@ theorem restA_s11j (hst : r.st = .s11j) (hok : RowOKX (ringChar F) r) :
   simp only [RowOKX, hst] at hok
   have hc := hH.cell
   have e0 := hS_ H hH (v := 0) (by omega)
-  obtain ⟨hfh, hf, hft, hfth, ⟨id, hid, hftth⟩, c1⟩ := hok
+  obtain ⟨hfh, hf, hft, hfth, ⟨hwp, hftth⟩, ⟨id, hid, hsf1⟩, c1⟩ := hok
   have et := hS_ H hH (v := 11) (by omega)
-  have e2 := hS_ H hH hid
+  have e2 := hS_ H hH hwp
+  have e3 := hS_ H hH hid
   have k1 := hC_ H hH c1
 
   xnorm; xsimp
@@ -952,9 +954,10 @@ theorem restE_s11j (hst : r.st = .s11j) (hok : RowOKX (ringChar F) r) :
   simp only [RowOKX, hst] at hok
   have hc := hH.cell
   have e0 := hS_ H hH (v := 0) (by omega)
-  obtain ⟨hfh, hf, hft, hfth, ⟨id, hid, hftth⟩, c1⟩ := hok
+  obtain ⟨hfh, hf, hft, hfth, ⟨hwp, hftth⟩, ⟨id, hid, hsf1⟩, c1⟩ := hok
   have et := hS_ H hH (v := 11) (by omega)
-  have e2 := hS_ H hH hid
+  have e2 := hS_ H hH hwp
+  have e3 := hS_ H hH hid
   have k1 := hC_ H hH c1
 
   xnorm; xsimp

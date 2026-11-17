@@ -38,7 +38,7 @@ def AxRowX9A (p : ℕ) (r : RowNX) : Prop :=
   | .s9 => ∀ ax, r.fth = .atom ax → ax < p
   | .s10 => ∀ a, r.ftth = .atom a → a < p ∨ AxCap a
   | .s10L => ∀ a, r.f = .atom a → a + 1 < p ∨ AxCap a
-  | .s11j => ∀ id, r.ftth = .atom id → id < p
+  | .s11j => (∀ id, r.ftth = .atom id → id < p) ∧ (∀ id, r.sf1 = .atom id → id < p)
   | _ => True
 
 /-- **Binder `hax9` (replaces `hax`)**: every row of the generated tree satisfies `AxRowX9A p`. -/

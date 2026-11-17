@@ -428,10 +428,10 @@ local notation "DL" => j9alDataOf p Rg Rt prims hgen
 /-- A primitive call record comes from an `s11j` row of the run. -/
 theorem mem_pcallsR {pids : List ℕ} {rows : Array RowNX} {x : ℕ × Noun × Noun}
     (hx : x ∈ ComplJ9ALData.pcallsR pids rows) :
-    ∃ row ∈ rows.toList, row.st = .s11j ∧ atomV row.ftth ∈ pids ∧ x = (atomV row.ftth, row.s, row.e) := by
+    ∃ row ∈ rows.toList, row.st = .s11j ∧ atomV row.sf1 ∈ pids ∧ x = (atomV row.sf1, row.s, row.e) := by
   unfold ComplJ9ALData.pcallsR at hx
   obtain ⟨row, hrow, hx⟩ := List.mem_filterMap.mp hx
-  by_cases hc : row.st = .s11j ∧ atomV row.ftth ∈ pids
+  by_cases hc : row.st = .s11j ∧ atomV row.sf1 ∈ pids
   · rw [if_pos hc] at hx
     exact ⟨row, hrow, hc.1, hc.2, (Option.some.inj hx).symm⟩
   · rw [if_neg hc] at hx; cases hx

@@ -24,6 +24,7 @@
     kid hypothesis of `rowJ_holdsN` is load-bearing.
 -/
 import Nock.NockVMROM.Thm54.SemanticStrategy
+import Nock.Jet.Wild
 
 set_option autoImplicit false
 

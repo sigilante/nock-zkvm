@@ -221,6 +221,13 @@ length `≤ D` (EVERY op-5 row, the `=` rows included: `RowOKX.s5` bounds the ax
 def Op5DepthX (D : ℕ) (t : NTree SkelX) : Prop :=
   ∀ u, InTree t u → u.label.state = .s5 → (fdN (kidE u.label 0) (kidE u.label 1)).1.length ≤ D
 
+/-- **The jet-key binder**: on every jet row the clue's value, when an atom, is below `q`.  The jet
+key is the VALUE of the clue, so (unlike the hint's tag) it is not a leaf of the formula and
+`FormLeafX` does not bound it.  A constant clue `[1 id]` meets this binder whenever `FormLeafX`
+holds. -/
+def JetKeyX (q : ℕ) (t : NTree SkelX) : Prop :=
+  ∀ u, InTree t u → u.label.state = .s11j → ∀ id, kidE u.label 0 = .atom id → id < q
+
 theorem leaves_hdN {a : ℕ} : ∀ {n : Noun}, a ∈ leavesOf (hdN n) → a ∈ leavesOf n
   | .atom _, h => h
   | .cell _ _, h => by simp only [leavesOf, List.mem_append]; exact Or.inl h
@@ -246,8 +253,9 @@ theorem axisOfPath_lt (l : List Bool) : axisOfPath l < 2 ^ (l.length + 1) := by
   have := foldl_axis_lt l 1
   unfold axisOfPath; rw [pow_succ]; linarith
 
-/-- **`SmallX` at every row of the tree** from the two tree-level binders (`2^(D+1) ≤ q`). -/
+/-- **`SmallX` at every row of the tree** from the three tree-level binders (`2^(D+1) ≤ q`). -/
 theorem smallX_of_tree {q D : ℕ} {t : NTree SkelX} (hL : FormLeafX q t) (hD : Op5DepthX D t)
+    (hK : JetKeyX q t)
     (hDq : 2 ^ (D + 1) ≤ q) : ∀ u, InTree t u → SmallX q (rowOfSkelX u.label) := by
   intro u hu
   have hl := hL u hu
@@ -263,7 +271,8 @@ theorem smallX_of_tree {q D : ℕ} {t : NTree SkelX} (hL : FormLeafX q t) (hD : 
   · intro ax h; have := hl ax (leaves_tlN (leaves_hdN (leaf h))); omega
   · intro a h; have := hl a (leaves_tlN (leaves_hdN (leaves_hdN (leaf h)))); omega
   · intro a h; exact hl a (leaf h)
-  · intro a h; have := hl a (leaves_tlN (leaves_hdN (leaves_hdN (leaf h)))); omega
+  · exact ⟨fun a h => by have := hl a (leaves_tlN (leaves_hdN (leaves_hdN (leaf h)))); omega,
+      fun id h => hK u hu hst id h⟩
 
 end Global
 
@@ -323,7 +332,8 @@ theorem computeChipVCLHX_honest_sat_tree {R : Registry} {m : ℕ} {s f : Noun} {
     (hgen : genX R m s f = some (t, r))
     (H : Noun → ℕ × ℕ) (sx : ℕ → ℕ → ℕ)
     (hH : HdlOK (ringChar F) H) (hp : 16 ≤ ringChar F) (hB : Nock.Atoms.B ≤ ringChar F)
-    {D : ℕ} (hL : FormLeafX (ringChar F) t) (hD : Op5DepthX D t) (hDq : 2 ^ (D + 1) ≤ ringChar F)
+    {D : ℕ} (hL : FormLeafX (ringChar F) t) (hD : Op5DepthX D t) (hK : JetKeyX (ringChar F) t)
+    (hDq : 2 ^ (D + 1) ≤ ringChar F)
     (α γ : K) (hord : (bfsForest [t]).length ≤ orderOf α)
     {hh n : ℕ} (hn : 0 < n) (hN : n = (bfsForest [t]).length)
     (nodes : Fin n → F) (hinj : Function.Injective nodes)
@@ -344,7 +354,7 @@ theorem computeChipVCLHX_honest_sat_tree {R : Registry} {m : ℕ} {s f : Noun} {
       (polyX b δ H (pdX sx) (bfsForest [t]) chalV pubVal (lnW α) (cntW (bfsForest [t]) α)
         (accW (F := F) H (bfsForest [t]) α γ) nodes
         (computeChipVCLHX hn nodes b δ chalV pubVal orbit).rap.w) :=
-  computeChipVCLHX_honest_sat_pd δ hgen H sx hH hp hB (smallX_of_tree hL hD hDq) α γ hord
+  computeChipVCLHX_honest_sat_pd δ hgen H sx hH hp hB (smallX_of_tree hL hD hK hDq) α γ hord
     hn hN nodes hinj b chalV pubVal orbit hadj hα hγ hpIC hpS hpO hpub hρ hnb
 
 end Main

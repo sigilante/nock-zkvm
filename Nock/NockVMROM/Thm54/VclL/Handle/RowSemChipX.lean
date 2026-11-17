@@ -769,11 +769,12 @@ theorem sem_s11d (hB : BaseHoldsX env) (hOK : ∀ r ∈ activeX env, RecOK D R l
     L3 hB hOK hOH (by decide)⟩
 
 /-- **op 11, `s11j`**: the served `TAG_jet` record names a registered template whose relation holds
-between the row's subject and result (J-3b `jetChip_holds` + J-1's registry, as `RecOK`). -/
+between the row's subject and result (J-3b `jetChip_holds` + J-1's registry, as `RecOK`).  The
+record's id is the clue's value `sf1`, a small atom by the gate (`s11j_wild`). -/
 theorem sem_s11j (hB : BaseHoldsX env) (hOK : ∀ r ∈ activeX env, RecOK D R limbA r) (hp : 17 < p)
     (hOH : OneHotAt env 16) : RowSemX0 p D R (rowOfX env .s11j) := by
-  obtain ⟨hfh, -, -, -, hid⟩ := s11_row hB hOH (Or.inr (Or.inr rfl))
-  have hk := hid rfl
+  obtain ⟨hfh, -, -, -, -⟩ := s11_row hB hOH (Or.inr (Or.inr rfl))
+  have hk : env.trace xSf1.k = 0 := (s11j_wild hB hOH).2
   have := hOK _ (ent_active hOH (S := slot3X) (by simp [slotsX])
     (x := ⟨[sS11j], .const 1, jetRecX, .s⟩) (by simp [slot3X]) (by decide) (by decide)
     (by simp [sS11j]) (by simp [evalQX]))

@@ -137,7 +137,7 @@ theorem opOf_of_mem {prims : List (ℕ × PrimOp)} (hnd : (prims.map Prod.fst).N
 id (the ALU blocks, one per call). -/
 def pcallsR (pids : List ℕ) (rows : Array RowNX) : List (ℕ × Noun × Noun) :=
   rows.toList.filterMap fun r =>
-    if r.st = .s11j ∧ atomV r.ftth ∈ pids then some (atomV r.ftth, r.s, r.e) else none
+    if r.st = .s11j ∧ atomV r.sf1 ∈ pids then some (atomV r.sf1, r.s, r.e) else none
 
 /-- Forgetting the results gives the ALU calls. -/
 theorem pcallsR_fst (pids : List ℕ) (rows : Array RowNX) :
@@ -148,7 +148,7 @@ theorem pcallsR_fst (pids : List ℕ) (rows : Array RowNX) :
   | nil => rfl
   | cons r l ih =>
     by_cases hs : r.st = .s11j
-    · by_cases hi : atomV r.ftth ∈ pids
+    · by_cases hi : atomV r.sf1 ∈ pids
       · simp [List.filterMap_cons, hs, hi, ih]
       · simp [List.filterMap_cons, hs, hi, ih]
     · simp [List.filterMap_cons, hs, ih]

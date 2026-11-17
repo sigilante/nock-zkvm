@@ -328,16 +328,16 @@ local notation "PIDS" => prims.map Prod.fst
 
 /-- The J part of a node's consume. -/
 def FJ (χ : Coins frameJ8 K) (u : NTree SkelX) : 𝕂′ :=
-  if (rowOfSkelX u.label).st = .s11j ∧ atomV (rowOfSkelX u.label).ftth ∉ PIDS then
+  if (rowOfSkelX u.label).st = .s11j ∧ atomV (rowOfSkelX u.label).sf1 ∉ PIDS then
     ComplJ8Bal.fS δ b χ (keyK 8 (κc (p := p) Rt (hJd p (DL).cells (DL).acs)
-      (atomV (rowOfSkelX u.label).ftth, (rowOfSkelX u.label).s)))
+      (atomV (rowOfSkelX u.label).sf1, (rowOfSkelX u.label).s)))
   else 0
 
 /-- The primitive part of a node's consume. -/
 def FP (χ : Coins frameJ8 K) (u : NTree SkelX) : 𝕂′ :=
-  if (rowOfSkelX u.label).st = .s11j ∧ atomV (rowOfSkelX u.label).ftth ∈ PIDS then
+  if (rowOfSkelX u.label).st = .s11j ∧ atomV (rowOfSkelX u.label).sf1 ∈ PIDS then
     ComplJ8Bal.fS δ b χ (keyK 8 (κp (p := p) prims (DL).cells (DL).H
-      (atomV (rowOfSkelX u.label).ftth, (rowOfSkelX u.label).s, (rowOfSkelX u.label).e)))
+      (atomV (rowOfSkelX u.label).sf1, (rowOfSkelX u.label).s, (rowOfSkelX u.label).e)))
   else 0
 
 /-- **A primitive call's compute key is the ALU hdr's `keyJet` provide** (the keys MATCH). -/
@@ -345,9 +345,9 @@ theorem prim_key (hax9 : ProgAxOK9A p t)
     (hnd : (prims.map Prod.fst).Nodup) (hprim : ∀ q ∈ prims, Rg.R q.1 = some (primSpec q.2))
     (hnoDec : ∀ q ∈ prims, q.2 ≠ .dec)
     {u : NTree SkelX} (hu : u ∈ bfsForest [t]) (hst : (rowOfSkelX u.label).st = .s11j)
-    (hid : atomV (rowOfSkelX u.label).ftth ∈ PIDS) :
+    (hid : atomV (rowOfSkelX u.label).sf1 ∈ PIDS) :
     kRow (p := p) (DD).H (rowOfSkelX u.label) =
-      κp (p := p) prims (DL).cells (DL).H (atomV (rowOfSkelX u.label).ftth, (rowOfSkelX u.label).s, (rowOfSkelX u.label).e) := by
+      κp (p := p) prims (DL).cells (DL).H (atomV (rowOfSkelX u.label).sf1, (rowOfSkelX u.label).s, (rowOfSkelX u.label).e) := by
   set rr := rowOfSkelX u.label with hrr
   have hin : InTree t u := Nock.NockVMROM.Thm54.TraceGen.inTree_of_mem_bfsForest_singleton hu
   have hsem := inTree_rowSem hgen hin
@@ -386,7 +386,7 @@ theorem Fk_split (hax9 : ProgAxOK9A p t)
     Fk δ b (DD).H χ u = FJ δ b Rt prims hgen χ u + FP δ b Rt prims hgen χ u := by
   unfold Fk FJ FP
   by_cases hst : (rowOfSkelX u.label).st = .s11j
-  · by_cases hid : atomV (rowOfSkelX u.label).ftth ∈ PIDS
+  · by_cases hid : atomV (rowOfSkelX u.label).sf1 ∈ PIDS
     · rw [if_pos hst, if_neg (fun h => h.2 hid), if_pos ⟨hst, hid⟩, zero_add,
         prim_key Rt prims hgen hax9 hnd hprim hnoDec hu hst hid]
     · rw [if_pos hst, if_pos ⟨hst, hid⟩, if_neg (fun h => hid h.2), add_zero]
@@ -418,13 +418,13 @@ theorem Fk_split (hax9 : ProgAxOK9A p t)
   · rw [if_neg hst, if_neg (fun h => hst h.1), if_neg (fun h => hst h.1), add_zero]
 
 theorem jCalls_filterMap (pids : List ℕ) (l : List RowNX) :
-    jCallsP pids (l.filterMap fun r => if r.st = .s11j then some (atomV r.ftth, r.s) else none) =
-      l.filterMap fun r => if r.st = .s11j ∧ atomV r.ftth ∉ pids then some (atomV r.ftth, r.s) else none := by
+    jCallsP pids (l.filterMap fun r => if r.st = .s11j then some (atomV r.sf1, r.s) else none) =
+      l.filterMap fun r => if r.st = .s11j ∧ atomV r.sf1 ∉ pids then some (atomV r.sf1, r.s) else none := by
   unfold jCallsP
   induction l with
   | nil => rfl
   | cons a l ih =>
-    by_cases h1 : a.st = .s11j <;> by_cases h2 : atomV a.ftth ∈ pids <;>
+    by_cases h1 : a.st = .s11j <;> by_cases h2 : atomV a.sf1 ∈ pids <;>
       simp_all [List.filterMap_cons, List.filter_cons]
 
 /-- The J parts total the J calls' keys. -/
@@ -432,11 +432,11 @@ theorem sum_FJ (χ : Coins frameJ8 K) :
     ((bfsForest [t]).map (FJ δ b Rt prims hgen χ)).sum =
       ((DL).calls.map fun cl => ComplJ8Bal.fS δ b χ (keyK 8 (κc (p := p) Rt (hJd p (DL).cells (DL).acs) cl))).sum := by
   have e : (bfsForest [t]).map (FJ δ b Rt prims hgen χ) = ((bfsForest [t]).map fun u => rowOfSkelX u.label).map
-      (fun rr => if rr.st = .s11j ∧ atomV rr.ftth ∉ PIDS then
-        ComplJ8Bal.fS δ b χ (keyK 8 (κc (p := p) Rt (hJd p (DL).cells (DL).acs) (atomV rr.ftth, rr.s))) else 0) := by
+      (fun rr => if rr.st = .s11j ∧ atomV rr.sf1 ∉ PIDS then
+        ComplJ8Bal.fS δ b χ (keyK 8 (κc (p := p) Rt (hJd p (DL).cells (DL).acs) (atomV rr.sf1, rr.s))) else 0) := by
     rw [List.map_map]; rfl
-  rw [e, filterMap_ite_split (fun rr : RowNX => rr.st = .s11j) (fun rr => atomV rr.ftth ∉ PIDS)
-    (fun rr => (atomV rr.ftth, rr.s)) (fun cl => ComplJ8Bal.fS δ b χ (keyK 8 (κc (p := p) Rt (hJd p (DL).cells (DL).acs) cl))),
+  rw [e, filterMap_ite_split (fun rr : RowNX => rr.st = .s11j) (fun rr => atomV rr.sf1 ∉ PIDS)
+    (fun rr => (atomV rr.sf1, rr.s)) (fun cl => ComplJ8Bal.fS δ b χ (keyK 8 (κc (p := p) Rt (hJd p (DL).cells (DL).acs) cl))),
     F_calls, ← jCalls_filterMap]
   rfl
 
@@ -445,11 +445,11 @@ theorem sum_FP (χ : Coins frameJ8 K) :
     ((bfsForest [t]).map (FP δ b Rt prims hgen χ)).sum =
       ((pcallsR PIDS (rowsOfT t)).map fun x => ComplJ8Bal.fS δ b χ (keyK 8 (κp (p := p) prims (DL).cells (DL).H x))).sum := by
   have e : (bfsForest [t]).map (FP δ b Rt prims hgen χ) = ((bfsForest [t]).map fun u => rowOfSkelX u.label).map
-      (fun rr => if rr.st = .s11j ∧ atomV rr.ftth ∈ PIDS then
-        ComplJ8Bal.fS δ b χ (keyK 8 (κp (p := p) prims (DL).cells (DL).H (atomV rr.ftth, rr.s, rr.e))) else 0) := by
+      (fun rr => if rr.st = .s11j ∧ atomV rr.sf1 ∈ PIDS then
+        ComplJ8Bal.fS δ b χ (keyK 8 (κp (p := p) prims (DL).cells (DL).H (atomV rr.sf1, rr.s, rr.e))) else 0) := by
     rw [List.map_map]; rfl
-  rw [e, filterMap_ite_split (fun rr : RowNX => rr.st = .s11j) (fun rr => atomV rr.ftth ∈ PIDS)
-    (fun rr => (atomV rr.ftth, rr.s, rr.e)) (fun x => ComplJ8Bal.fS δ b χ (keyK 8 (κp (p := p) prims (DL).cells (DL).H x)))]
+  rw [e, filterMap_ite_split (fun rr : RowNX => rr.st = .s11j) (fun rr => atomV rr.sf1 ∈ PIDS)
+    (fun rr => (atomV rr.sf1, rr.s, rr.e)) (fun x => ComplJ8Bal.fS δ b χ (keyK 8 (κp (p := p) prims (DL).cells (DL).H x)))]
   rfl
 
 /-- **The compute jet total, split**: the J calls' keys plus the primitive calls' ALU keys. -/

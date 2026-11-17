@@ -145,7 +145,7 @@ def RowSemX0 (R : Registry) (r : RowVSX) : Prop :=
   | .s11d => Cell3 D r.f r.fh r.ft ∧ r.fh = (0, 11) ∧ Cell3 D r.ft r.fth r.ftt ∧
       Cell3 D r.fth r.ftth r.fttt
   | .s11j => Cell3 D r.f r.fh r.ft ∧ r.fh = (0, 11) ∧ Cell3 D r.ft r.fth r.ftt ∧
-      Cell3 D r.fth r.ftth r.fttt ∧ ∃ (id : ℕ) (j : JetSpec), r.ftth = (0, id) ∧ R id = some j ∧
+      Cell3 D r.fth r.ftth r.fttt ∧ ∃ (id : ℕ) (j : JetSpec), r.sf1 = (0, id) ∧ R id = some j ∧
         D r.ftt = some j.c ∧ ∃ S E, D r.s = some S ∧ D r.e = some E ∧ j.T.rel S E
 
 /-- **The kid-kind clause**: every REAL child position's formula handle is a cell (wire kind `1`).
@@ -489,7 +489,7 @@ theorem local_stepX (hD : DenOKX p D) {R : Registry} (r : RowVSX) (hsem : RowSem
     · simp only [h1e]
   · -- s11j
     obtain ⟨h0s, h0f, h0e⟩ := hk
-    obtain ⟨hf3, hfh, ht3, hth3, id, j, hid, hj, hc, S, E, hS, hE, hrel⟩ := hsem
+    obtain ⟨hf3, hfh, ht3, hth3, id, j, hkey, hj, hc, S, E, hS, hE, hrel⟩ := hsem
     have hF := cell3_of hf3
     have hT := cell3_of ht3
     have hTH := cell3_of hth3
@@ -499,8 +499,7 @@ theorem local_stepX (hD : DenOKX p D) {R : Registry} (r : RowVSX) (hsem : RowSem
     · simp only [hF, h0s, h0f, hd, tl, StrategyOfTraces.nounHead, StrategyOfTraces.nounTail,
         and_self]
     · refine ⟨id, j, ?_, hj, ?_, ?_⟩
-      · simp only [hF, hd, tl, StrategyOfTraces.nounHead, StrategyOfTraces.nounTail, hid,
-          atom_nd hD]
+      · simp only [h0e, hkey, atom_nd hD]
       · simp only [hF, tl, StrategyOfTraces.nounTail, nd_of hc]
       · rw [nd_of hS, nd_of hE]; exact hrel
 

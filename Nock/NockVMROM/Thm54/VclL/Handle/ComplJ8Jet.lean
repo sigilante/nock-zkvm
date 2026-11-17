@@ -35,9 +35,10 @@ noncomputable section
 
 /-! ## 1. The binder `hregC` -/
 
-/-- The jet ids the run CALLS: the atom `f_tth` of every `s11j` row of the generated tree. -/
+/-- The jet ids the run CALLS: the atom `sf1`, the clue's value, of every `s11j` row of the generated
+tree.  (The tag `f_tth` of such a row is always `%wild`.) -/
 def CalledIds (t : NTree SkelX) : Set ℕ :=
-  {id | ∃ u, InTree t u ∧ (rowOfSkelX u.label).st = .s11j ∧ (rowOfSkelX u.label).ftth = .atom id}
+  {id | ∃ u, InTree t u ∧ (rowOfSkelX u.label).st = .s11j ∧ (rowOfSkelX u.label).sf1 = .atom id}
 
 /-- **Binder `hregC`**: every jet the run calls is registered in compiled form, i.e. as an entry of
 `VerifiedRegistry.ofCompiled p _ Rt regs _` for some template table `Rt` whose called entries are well typed with
@@ -715,10 +716,11 @@ open Nock.NockVMROM.Thm54.VclL.Handle.ComplJ8Data (rowsOfT)
 open Nock.V1J8.Gen (callsOf)
 
 /-- **An `s11j` node is a jet hit**: a generated node whose state is `s11j` has the formula
-`[11 [b clue] body]` and `jetHit R b body s = some _`. -/
+`[11 [b clue] body]` and `jetHit R b v body s = some _` at the clue's value `v`. -/
 theorem genX_s11j {R : Registry} {n : ℕ} {s f : Noun} {t : NTree SkelX} {r : Noun}
     (h : genX R n s f = some (t, r)) (hst : t.label.state = .s11j) :
-    ∃ b clue body r', f = .cell (.atom 11) (.cell (.cell b clue) body) ∧ jetHit R b body s = some r' := by
+    ∃ b clue body v r', f = .cell (.atom 11) (.cell (.cell b clue) body) ∧
+      jetHit R b v body s = some r' := by
   rcases n with _ | n
   · simp [genComputeSkeletonX] at h
   unfold genComputeSkeletonX at h
@@ -728,7 +730,7 @@ theorem genX_s11j {R : Registry} {n : ℕ} {s f : Noun} {t : NTree SkelX} {r : N
     | (simp only [Option.some.injEq, Prod.mk.injEq] at h; obtain ⟨rfl, -⟩ := h; simp [mkX] at hst; done)
     | (exfalso; simp at h; done)
     | skip
-  all_goals exact ⟨_, _, _, _, rfl, by assumption⟩
+  all_goals exact ⟨_, _, _, _, _, rfl, by assumption⟩
 
 theorem rowOfSkelX_st (sk : SkelX) : (rowOfSkelX sk).st = sk.state := by
   unfold rowOfSkelX
@@ -738,22 +740,19 @@ theorem rowOfSkelX_s (sk : SkelX) : (rowOfSkelX sk).s = sk.subject := by
   unfold rowOfSkelX
   cases sk.state <;> rfl
 
-/-- **A jet row of a generated tree is a registered hit**: its `ftth` is an atom id, the registry has an entry
-there, and the entry's template has a result on the row's subject. -/
+/-- **A jet row of a generated tree is a registered hit**: its clue value `sf1` is an atom id, the registry has
+an entry there, and the entry's template has a result on the row's subject. -/
 theorem s11j_node {R : Registry} {fuel : ℕ} {s f r : Noun} {t : NTree SkelX}
     (hgen : genX R fuel s f = some (t, r)) {u : NTree SkelX} (hu : InTree t u)
     (hst : u.label.state = .s11j) :
-    ∃ id j r', R id = some j ∧ (rowOfSkelX u.label).ftth = .atom id ∧ j.T.semS u.label.subject = some r' := by
-  rcases genX_inTree hgen hu with ⟨m, hm⟩ | hc
-  · obtain ⟨b, clue, body, r', hf, hj⟩ := genX_s11j hm hst
-    obtain ⟨id, j, rfl, hRj, -, hrel⟩ := jetHit_spec hj
-    refine ⟨id, j, r', hRj, ?_, hrel⟩
-    unfold rowOfSkelX
-    rw [hst]
-    simp only [hf, tlN, hdN]
-  · have := chainNode_isChain hc
-    rw [hst] at this
-    exact absurd this (by decide)
+    ∃ id j r', R id = some j ∧ (rowOfSkelX u.label).sf1 = .atom id ∧ j.T.semS u.label.subject = some r' := by
+  have hs := inTree_rowSem hgen hu
+  have hst' : (rowOfSkelX u.label).st = .s11j := by rw [rowOfSkelX_st]; exact hst
+  unfold RowNX.SemN at hs
+  rw [hst'] at hs
+  obtain ⟨-, -, -, -, id, j, -, hsf1, hRj, -, hrel⟩ := hs
+  rw [rowOfSkelX_s] at hrel
+  exact ⟨id, j, _, hRj, hsf1, hrel⟩
 
 /-- **`hcalls` from `HregC` and the tree**: every call of the run has a well-typed template with a result on
 the call's subject. -/

@@ -32,7 +32,7 @@ def SmallX (p : ℕ) (r : RowNX) : Prop :=
   | .s9 => ∀ ax, r.fth = .atom ax → ax < p
   | .s10 => ∀ a, r.ftth = .atom a → a < p
   | .s10L => ∀ a, r.f = .atom a → a + 1 < p
-  | .s11j => ∀ id, r.ftth = .atom id → id < p
+  | .s11j => (∀ id, r.ftth = .atom id → id < p) ∧ (∀ id, r.sf1 = .atom id → id < p)
   | _ => True
 
 /-- **A generated run has a cell formula.** -/
@@ -163,7 +163,10 @@ theorem genX_rowOK {R : Registry} {p n : ℕ} {s f : Noun} {t : NTree SkelX} {r 
     gen_cells
     cases b with
     | cell b1 b2 => simp [jetHit] at hj
-    | atom b => fin_row
+    | atom b =>
+      obtain ⟨id, j, hb, rfl, -⟩ := jetHit_spec hj
+      obtain rfl : b = wildTag := by injection hb
+      fin_row
   case case36 n s b clue body t1 v hcl hj t2 r1 hB ih1 ih2 =>
     simp only [genComputeSkeletonX, hcl, hj, hB, Option.some.injEq, Prod.mk.injEq] at h
     obtain ⟨rfl, -⟩ := h

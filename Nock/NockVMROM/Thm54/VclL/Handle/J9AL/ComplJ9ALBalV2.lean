@@ -735,7 +735,7 @@ theorem pcall_facts (hnd : (prims.map Prod.fst).Nodup)
     (hprim : ∀ q ∈ prims, Rg.R q.1 = some (Nock.Jet.Prim.primSpec q.2))
     (hnoDec : ∀ q ∈ prims, q.2 ≠ .dec) :
     ∀ x ∈ ComplJ9ALData.pcallsR (prims.map Prod.fst) (ComplJ8Data.rowsOfT t),
-      ∃ row ∈ (ComplJ8Data.rowsOfT t).toList, ∃ a c n, x = (atomV row.ftth, row.s, row.e) ∧
+      ∃ row ∈ (ComplJ8Data.rowsOfT t).toList, ∃ a c n, x = (atomV row.sf1, row.s, row.e) ∧
         row.s = .cell (.atom a) (.atom c) ∧ row.e = .atom n ∧
         Nock.Jet.Prim.primSem (ComplJ9ALData.opOf prims x.1) a c = some n ∧ ComplJ9ALData.opOf prims x.1 ≠ .dec := by
   intro x hx

@@ -273,7 +273,7 @@ theorem sum_jetTG (hax : ProgAxOK p t)
   show _ = ((Nock.V1J8.Gen.callsOf (ComplJ8Data.rowsOfT t)).map _).sum
   unfold Nock.V1J8.Gen.callsOf ComplJ8Data.rowsOfT
   simp only [List.toList_toArray]
-  rw [← sum_filterMap_ite (fun r : RowNX => r.st = .s11j) (fun r => (Nock.V1J8.Gen.atomV r.ftth, r.s)), List.map_map]
+  rw [← sum_filterMap_ite (fun r : RowNX => r.st = .s11j) (fun r => (Nock.V1J8.Gen.atomV r.sf1, r.s)), List.map_map]
   rfl
 
 set_option maxHeartbeats 2000000 in

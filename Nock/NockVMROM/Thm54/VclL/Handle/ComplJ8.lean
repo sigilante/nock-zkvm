@@ -102,7 +102,7 @@ def AxRowX (p : ℕ) (r : RowNX) : Prop :=
   | .s9 => ∀ ax, r.fth = .atom ax → ax < p
   | .s10 => ∀ a, r.ftth = .atom a → a < p
   | .s10L => ∀ a, r.f = .atom a → a + 1 < p
-  | .s11j => ∀ id, r.ftth = .atom id → id < p
+  | .s11j => (∀ id, r.ftth = .atom id → id < p) ∧ (∀ id, r.sf1 = .atom id → id < p)
   | _ => True
 
 /-- **The op-5 depth condition at one row**: on an op-5 row, the axis of the first difference of the two compared

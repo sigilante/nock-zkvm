@@ -170,7 +170,7 @@ theorem aluB_big (n : Noun) (a : ℕ) (hn : n ∈ (ComplJ9ALData.pcallsR (prims.
   obtain ⟨row, hrow, hrx⟩ := List.mem_filterMap.mp hx
   have hrow' : row ∈ (j8DataOf Nock.Atoms.p Rg Rt hgen).rows.toList := hrow
   have hxr : x.2.1 = row.s ∧ x.2.2 = row.e := by
-    by_cases hc : row.st = .s11j ∧ atomV row.ftth ∈ prims.map Prod.fst
+    by_cases hc : row.st = .s11j ∧ atomV row.sf1 ∈ prims.map Prod.fst
     · rw [if_pos hc] at hrx
       cases hrx
       exact ⟨rfl, rfl⟩

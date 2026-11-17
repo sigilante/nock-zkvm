@@ -69,7 +69,7 @@ theorem primC_mem_cells (hnd : (prims.map Prod.fst).Nodup)
     rw [← ComplJ8Jet.rowOfSkelX_st]
     by_contra hne
     simp [hne] at hrc
-  have hcl' : cl = (Nock.V1J8.Gen.atomV (rowOfSkelX u.label).ftth, (rowOfSkelX u.label).s) := by
+  have hcl' : cl = (Nock.V1J8.Gen.atomV (rowOfSkelX u.label).sf1, (rowOfSkelX u.label).s) := by
     rw [if_pos (by rw [ComplJ8Jet.rowOfSkelX_st]; exact hst)] at hrc
     exact (Option.some.inj hrc).symm
   rcases genX_inTree hgen huc with ⟨m, hm⟩ | hch

@@ -7,8 +7,10 @@
   * `KidInputsNX` — E-0's `KidInputsX` on every state but `s11j`, where E-0 had `False`: a jetted
     row has ONE child, the clue `(s, f_ttt)` (SPEC §3.1 fanout 1).
   * `RowOutputNX R` — E-0's `RowOutputFX` at ℕ (OP4 is `Noun.lus`, Nock 4K increment, no field
-    wrap), and `s11j`: the id `f_tth` is an atom `id`, `R id = some j`, `j.c = f_tt` (the hinted
-    body) and `j.T.rel s e` (the J record).
+    wrap), and `s11j`: the clue child's value is an atom `id` (the jet key), `R id = some j`,
+    `j.c = f_tt` (the hinted body) and `j.T.rel s e` (the J record).  The hint's tag does not
+    appear: `evalN` ignores it, so soundness does not need it.  That a jet row's tag is `%wild`
+    is the chip's gate (`ChipHX.s11j_wild`) and the generator's `jetHit`.
   * `GenuineNX R` — the tree predicate, with E-0's `roles` field (chain positions are exactly
     `chainPosX`).
   * **`genuineNX_sem`** — every real node `HoldsN`, every chain node `ChainOK` at its atom axis.
@@ -61,8 +63,8 @@ def RowOutputNX (R : Registry) : StateX → Noun → Noun → List RowX → Noun
   | .s10T, _, _, [], _ => True
   | .s11s, _, _, [k], e => e = k.evaluation
   | .s11d, _, _, [_, kB], e => e = kB.evaluation
-  | .s11j, s, f, [_], e =>
-      ∃ (id : ℕ) (j : JetSpec), hd (hd (tl f)) = .atom id ∧ R id = some j ∧ j.c = tl (tl f) ∧
+  | .s11j, s, f, [kD], e =>
+      ∃ (id : ℕ) (j : JetSpec), kD.evaluation = .atom id ∧ R id = some j ∧ j.c = tl (tl f) ∧
         j.T.rel s e
   | _, _, _, _, _ => False
 
@@ -360,9 +362,8 @@ theorem genuineNX_sem {R : Registry} (hR : R.Faithful) {T : NTree RowX} (hT : Ge
       have rD := run kD (by simp) (roles 0 (by simp))
       rw [hsD, hfD, hf] at rD
       simp only [hd, tl, StrategyOfTraces.nounHead, StrategyOfTraces.nounTail] at rD
-      rw [hf] at hid hc
-      simp only [hd, tl, StrategyOfTraces.nounHead, StrategyOfTraces.nounTail] at hid hc
-      subst hid
+      rw [hf] at hc
+      simp only [hd, tl, StrategyOfTraces.nounHead, StrategyOfTraces.nounTail] at hc
       obtain ⟨n, hn⟩ := (hR id j hj).1 s.subject s.evaluation hrel
       rw [hc] at hn
       simp only [SemNX, StateX.isChain]

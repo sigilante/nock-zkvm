@@ -270,6 +270,11 @@ theorem op5Depth0 : Op5DepthX 0 t0 := by
   rw [inTree_t0 hu] at hs
   simp [t0, mkX] at hs
 
+theorem jetKey0 (q : ℕ) : JetKeyX q t0 := by
+  intro u hu hs
+  rw [inTree_t0 hu] at hs
+  simp [t0, mkX] at hs
+
 theorem hord0 (χ : Coins frameJ8 K) (hα : χ ⟨13, by decide⟩ ≠ 0) : [t0].length ≤ orderOf (αC0 b χ) := by
   rw [αC0_eq]
   have hc : 1 < Fintype.card K := Fintype.one_lt_card
@@ -293,7 +298,7 @@ theorem hsatX_c0 (H : Noun → ℕ × ℕ) (hH : HdlOK p H) (hB : Nock.Atoms.B �
   unfold trC0
   rw [← bfs0]
   refine computeChipVCLHX_honest_sat_tree δ gen0 H sx0 hH' (by omega) (by omega)
-    (D := 0) (formLeaf0 (by omega)) op5Depth0 (by rw [hrc]; norm_num; omega) (αC0 b χ) (γC0 b χ)
+    (D := 0) (formLeaf0 (by omega)) op5Depth0 (jetKey0 _) (by rw [hrc]; norm_num; omega) (αC0 b χ) (γC0 b χ)
     (by rw [bfs0]; exact hord0 b χ hα) hn (by rw [bfs0, hN]; rfl) nodes ?_ b _ _ orbit ?_ rfl rfl
     (hpIC0 δ b H χ) (by rw [bfs0]; exact hpS0 δ b H hH χ) (hpO0 δ b H χ) (hpub0 δ b H hH χ)
     (by rw [bfs0, hN]; exact hρ0 δ b H χ)

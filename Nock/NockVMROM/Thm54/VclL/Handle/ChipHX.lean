@@ -39,6 +39,7 @@
   wiring of the service terminal (J-8a), honest fill (J-8b).
 -/
 import Nock.NockVMROM.Thm54.VclL.Handle.ChipHQ
+import Nock.Jet.Wild
 
 namespace Nock.NockVMROM.Thm54
 namespace VclL.Handle
@@ -268,11 +269,13 @@ def s10LG : List (CoeffExpr F) :=
    .mul (cc sS10L) (.sub (.mul (.sub (cc v2X) (.const 1)) (cc wX)) (.const 1)),
    .mul (cc sS10L) (.add (.sub (.sub (cc ax2X) (cc v2X)) (.const 1)) (.mul (.const 2) (cc betaX)))]
 
-/-- **op 11**: `s11s` static (atom tag), `s11j` jet id small. (`s11d`/`s11j` decode-parent kinds sit
-in `svG`.) -/
+/-- **op 11**: `s11s` static (atom tag); `s11j`: the tag `f_tth` is a small atom (its VALUE is
+pinned to `%wild` in `svEq`), and the jet key, the clue's value `sf1`, is a small atom.
+(`s11d`/`s11j` decode-parent kinds sit in `svG`.) -/
 def s11G : List (CoeffExpr F) :=
   [.mul (cc sS11s) (kcE xFth),
-   .mul (cc sS11j) (cc xFtth.k)]
+   .mul (cc sS11j) (cc xFtth.k),
+   .mul (cc sS11j) (cc xSf1.k)]
 
 def kidFormsX : List (ℕ × Hd) :=
   [(2, xFth), (2, xFtt), (2, xSf2), (3, xFt), (4, xFt), (5, xFth), (5, xFtt), (6, xM), (6, xFth),
@@ -293,7 +296,7 @@ def arithGatesX : List (CoeffExpr F) :=
 def svEq : List (EqG F) :=
   ((List.range 10).map fun j => ⟨cc j, xFh.v, .cst (j : F)⟩) ++
   [⟨cc sS10, xFh.v, .cst 10⟩, ⟨cc sS11s, xFh.v, .cst 11⟩, ⟨cc sS11d, xFh.v, .cst 11⟩,
-   ⟨cc sS11j, xFh.v, .cst 11⟩]
+   ⟨cc sS11j, xFh.v, .cst 11⟩, ⟨cc sS11j, xFtth.v, .cst (Nock.Jet.wildTag : F)⟩]
 
 def op0Eq : List (EqG F) := [⟨cc 0, vX, .col xFt.v⟩] ++ heq (.mul (cc 0) (cc z1X)) xE xS
 def op1Eq : List (EqG F) := heq (cc 1) xE xFt
@@ -346,9 +349,10 @@ def cellRecX (p l r : Hd) : List RE := recOf (cellRec p l r)
 def walkRecX (root : Hd) (axis : ℕ) (ch : Hd) : List RE := recOf (walkRec root axis ch)
 /-- A-2 `incKey`: `(old.k, old.v, new.k, new.v, TAG_inc = 4)`. -/
 def incRecX : List RE := [.col xSf1.k, .col xSf1.v, .col xE.k, .col xE.v, .k 4]
-/-- J-3b `keyJet` (C-2 step 0 order): `(id, h_c, h_S, h_E, TAG_jet = 3)`, the tag LAST. -/
+/-- J-3b `keyJet` (C-2 step 0 order): `(id, h_c, h_S, h_E, TAG_jet = 3)`, the tag LAST.  The `id`
+is the VALUE of the clue, `sf1.v` (a small atom by `s11G`), not the hint's tag. -/
 def jetRecX : List RE :=
-  [.col xFtth.v, .col xFtt.k, .col xFtt.v, .col xS.k, .col xS.v, .col xE.k, .col xE.v, .k 3]
+  [.col xSf1.v, .col xFtt.k, .col xFtt.v, .col xS.k, .col xS.v, .col xE.k, .col xE.v, .k 3]
 /-- AW `walkRecA` at the first-difference leaves: `(rootIdx, ax2, k_b, v_b)`. -/
 def walkRecAX (root : Hd) (l : Hd) : List RE := [.col root.v, .col ax2X, .col l.k, .col l.v]
 
@@ -1227,6 +1231,24 @@ theorem s11_row {env : Env F} (hB : BaseHoldsX env) {j : ℕ} (hOH : OneHotAt en
     rw [h16] at e16 a2
     refine ⟨by linear_combination e16, by linear_combination -aT, fun h => absurd h (by decide),
       fun _ => by linear_combination -aH, fun _ => by linear_combination a2⟩
+
+/-- **A jet row is a `%wild` hint keyed by its clue's value**: on `s11j` the tag `f_tth` has value
+`%wild` (with `s11_row`'s kind `0`, the atom `%wild` when `wildTag < p`), and the clue's value `sf1`
+is a small atom, the jet key that `jetRecX` consumes. -/
+theorem s11j_wild {env : Env F} (hB : BaseHoldsX env) (hOH : OneHotAt env sS11j) :
+    tr env xFtth.v = (Nock.Jet.wildTag : F) ∧ tr env xSf1.k = 0 := by
+  have g := fun x hx => arith_of_base (F := F) hB (s11G_sub x hx)
+  have es := fun x hx => eq_of_base (F := F) hB (svEq_sub x hx)
+  have a3 := g _ (by simp [s11G] : (.mul (cc sS11j) (cc xSf1.k)) ∈ (s11G (F := ℚ)))
+  have eW := es _ (by simp [svEq] :
+    (⟨cc sS11j, xFtth.v, .cst (Nock.Jet.wildTag : ℚ)⟩ : EqG ℚ) ∈ (svEq (F := ℚ)))
+  have h16 := hOH sS11j (by decide)
+  simp only [EqG.gate, Opnd.expr, cc, evalQX, Rat.cast_natCast] at eW
+  simp only [cc, evalQX] at a3
+  simp only [if_true] at h16
+  rw [h16] at eW a3
+  simp only [tr]
+  exact ⟨by linear_combination eW, by linear_combination a3⟩
 
 end RowSem
 

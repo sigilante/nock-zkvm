@@ -46,7 +46,7 @@ def regOf (Rt : ℕ → Tpl) (regs : List ℕ) : Nock.Jet.Registry := fun n =>
 
 /-- The calls of a run: every `s11j` row, `(id, subject)`, in row order. -/
 def callsOf (rows : Array RowNX) : List (ℕ × Noun) :=
-  rows.toList.filterMap fun r => if r.st = .s11j then some (atomV r.ftth, r.s) else none
+  rows.toList.filterMap fun r => if r.st = .s11j then some (atomV r.sf1, r.s) else none
 
 /-- The honest node values of a call (J-3a `honestRows`, computed once). -/
 def callVals (Rt : ℕ → Tpl) (c : ℕ) (cl : ℕ × Noun) : List Noun :=

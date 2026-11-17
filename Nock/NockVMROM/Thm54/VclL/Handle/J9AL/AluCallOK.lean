@@ -192,9 +192,9 @@ theorem prim_row {Rg : VerifiedRegistry} {fuel : ℕ} {s f r : Noun} {t : NTree 
     (hgen : genX Rg.R fuel s f = some (t, r)) {prims : List (ℕ × PrimOp)}
     (hnd : (prims.map Prod.fst).Nodup) (hprim : ∀ q ∈ prims, Rg.R q.1 = some (primSpec q.2))
     (hnoDec : ∀ q ∈ prims, q.2 ≠ .dec) {row : RowNX} (hrow : row ∈ (rowsOfT t).toList)
-    (hst : row.st = .s11j) (hid : atomV row.ftth ∈ prims.map Prod.fst) :
+    (hst : row.st = .s11j) (hid : atomV row.sf1 ∈ prims.map Prod.fst) :
     ∃ x y n, row.s = .cell (.atom x) (.atom y) ∧ row.e = .atom n ∧
-      primSem (opOf prims (atomV row.ftth)) x y = some n ∧ opOf prims (atomV row.ftth) ≠ .dec := by
+      primSem (opOf prims (atomV row.sf1)) x y = some n ∧ opOf prims (atomV row.sf1) ≠ .dec := by
   have hrow' : ∃ u ∈ bfsForest [t], rowOfSkelX u.label = row := by
     simpa [rowsOfT] using hrow
   obtain ⟨u, hu, rfl⟩ := hrow'
@@ -263,9 +263,9 @@ theorem callOK_run (hp32 : Bn < p) (hcs : (j9alDataOf p Rg Rt prims hgen).cells.
   have hx0 := hx
   unfold pcallsR at hx
   obtain ⟨row, hrow, hrx⟩ := List.mem_filterMap.mp hx
-  by_cases hc : row.st = .s11j ∧ atomV row.ftth ∈ prims.map Prod.fst
+  by_cases hc : row.st = .s11j ∧ atomV row.sf1 ∈ prims.map Prod.fst
   · rw [if_pos hc] at hrx
-    have hxe : x = (atomV row.ftth, row.s, row.e) := (Option.some.inj hrx).symm
+    have hxe : x = (atomV row.sf1, row.s, row.e) := (Option.some.inj hrx).symm
     obtain ⟨a, b, n, hs, he, hsem, hd⟩ := prim_row hgen hnd hprim hnoDec hrow hc.1 hc.2
     obtain ⟨hlA, hlB⟩ := hlimb x hx0
     subst hxe
@@ -298,7 +298,7 @@ theorem callOK_run (hp32 : Bn < p) (hcs : (j9alDataOf p Rg Rt prims hgen).cells.
         vSok := ?_
         limbs62 := limbs62_of p _ hsem hlA hlB }
     · have hn1 : n < p := by
-        have hlt' : opOf prims (atomV row.ftth) = .lt := hlt
+        have hlt' : opOf prims (atomV row.sf1) = .lt := hlt
         rw [hlt'] at hsem
         simp only [primSem, Option.some.injEq] at hsem
         have : n ≤ 1 := by rw [← hsem]; split_ifs <;> norm_num

@@ -81,10 +81,6 @@ def genChainF (old e : Noun) : ℕ → ℕ → NTree SkelX
 def genChain (old e : Noun) (a : ℕ) : NTree SkelX := genChainF old e a a
 
 
-/-- **The reserved hint tag of a jet call**: the cord `%wild`, as an atom.  A jet is ONE KIND of
-dynamic hint; every other tag is a hint the machine does not act on. -/
-def wildTag : ℕ := 0x646c6977
-
 /-- **Jet dispatch.**  `b` is the hint's tag, `v` the VALUE of its clue, `c` its body.  A hit needs
 the reserved tag `%wild`, an atomic clue value `id` (the jet key), an entry registered at `id`
 whose formula is exactly `c`, and a template that answers on `s`.  The tag names the hint kind;
