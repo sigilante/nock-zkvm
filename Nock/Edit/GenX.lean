@@ -11,9 +11,14 @@
     its children, in E-0's `KidInputsX` order, which is the chip's `sf1 / sf2` order).
   * `genChain old e a` — the edit chain pseudo-rows `s10L` (one per level `a_k ≥ 2`) ending in
     `s10T` at the atom `1`.
-  * Then the row is `s11j` with ONE child (the clue) and its result is
+  * `jetHit R b v c s` — jet dispatch on a dynamic hint `[11 [b clue] c]` whose clue has value
+    `v`.  A jet is ONE KIND of hint: the tag `b` must be the atom `%wild` (`wildTag`), and the jet
+    key is the clue's VALUE `v`, an atom `id` with `R id` registered at exactly the formula `c`.
+    Then the row is `s11j` with ONE child (the clue) and its result is
     `r`, computed by the template's semantics — the generator never descends into `c`.
-    Otherwise a dynamic hint is an `s11d` row (clue, then body).
+    Otherwise a dynamic hint is an `s11d` row (clue, then body).  `wildCall id c` is the wire
+    form `[11 [%wild [1 id]] c]`.  (J-1's `Nock.Jet.jetCall`, tag = id, is the earlier form and
+    is no longer a jet here.)
   * `genComputeSkeletonX R fuel s f` — the generator: every opcode `0 … 11` and autocons, ℕ-atoms
     (so op 4 / op 5 on big atoms), op 10 with its chain, op 11 static / dynamic / jet.
   * **Key lemmas.**  `genX_complete`: an `evalN` run at fuel `n` has a generated tree at the same
@@ -213,7 +218,8 @@ theorem genX_label {R : Registry} {n : ℕ} {s f : Noun} {t : NTree SkelX} {r : 
   induction n, s, f using genComputeSkeletonX.induct R generalizing t r
   all_goals (simp_all [genComputeSkeletonX]; try (obtain ⟨rfl, rfl⟩ := h; simp [StateX.isChain]))
 
-/-- What a jet hit means: an atom id, a registered entry with that formula, its relation. -/
+/-- What a jet hit means: the tag is `%wild`, the clue's value is an atom `id`, the registry has
+an entry at `id` with exactly that formula, and the entry's relation holds. -/
 theorem jetHit_spec {R : Registry} {b v c s r : Noun} (h : jetHit R b v c s = some r) :
     ∃ id j, b = .atom wildTag ∧ v = .atom id ∧ R id = some j ∧ j.c = c ∧ j.T.rel s r := by
   unfold jetHit at h
@@ -660,17 +666,19 @@ theorem genX_result_eq_evalN {R : Registry} (hR : R.Faithful) {n m : ℕ} {s f r
   rw [(genX_label h).2.2.1]
   exact evalN_deterministic hf hrun
 
-/-- **A jetted row never descends into the body**: its only child is the clue. -/
+/-- **A jetted row never descends into the body**: its only child is the clue.  The clue's run
+`hcl` is a hypothesis because dispatch reads the clue's value `v`; a successful `h` always has
+one, and it is unique. -/
 theorem genX_jet_row {R : Registry} {n : ℕ} {s b clue body : Noun} {t : NTree SkelX} {r r' : Noun}
     {tD : NTree SkelX} {v : Noun}
     (h : genX R (n + 1) s (.cell (.atom 11) (.cell (.cell b clue) body)) = some (t, r))
     (hcl : genX R n s clue = some (tD, v))
     (hj : jetHit R b v body s = some r') :
-    t.label.state = .s11j ∧ r = r' ∧ ∃ tD v, t.children = [tD] ∧ genX R n s clue = some (tD, v) := by
+    t.label.state = .s11j ∧ r = r' ∧ t.children = [tD] := by
   have hcl' := hcl
   unfold genX at hcl'
   simp only [genX, genComputeSkeletonX, hcl', hj, Option.some.injEq, Prod.mk.injEq] at h
   obtain ⟨rfl, rfl⟩ := h
-  exact ⟨rfl, rfl, tD, v, rfl, hcl⟩
+  exact ⟨rfl, rfl, rfl⟩
 
 end Nock.Edit.GenX

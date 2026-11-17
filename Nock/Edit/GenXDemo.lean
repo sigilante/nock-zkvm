@@ -12,7 +12,8 @@
      OP4 rows are slow (`incRecX`), the closure `demandA` is `{p, p + 1}`, and A-1's carry chain
      carries both records.
   3. **A jetted matmul `n = 2`** through a `toyR`-style registry entry made by J-2's `compile`:
-     the hinted call is ONE `s11j` row with ONE child (the clue `[1 0]`); the result is
+     the hinted call `[11 [%wild [1 7]] c]` is ONE `s11j` row with ONE child (the clue `[1 7]`,
+     whose value `7` is the jet key); the result is
      `(matmulT 2).sem` at Goldilocks; the same program without the registry generates a large tree.
 -/
 import Nock.Edit.GenXRows
@@ -127,8 +128,13 @@ theorem matR_faithful : matR.Faithful := by
 /-- The hinted program `[11 [%wild [1 7]] c_T]`: tag `%wild`, the jet key `7` in the clue. -/
 def matProg : Noun := wildCall 7 (compile Nock.Field.p (matmulT 2))
 
-/-- The OLD wire form `[11 [7 [1 0]] c_T]`, where the tag itself was the jet id. -/
+/-- The EARLIER wire form `[11 [7 [1 0]] c_T]`, where the tag itself was the jet id. -/
 def matProgTagged : Noun := jetCall 7 (.cell (.atom 1) (.atom 0)) (compile Nock.Field.p (matmulT 2))
+
+/-- A registered key under the WRONG tag: `[11 [7 [1 7]] c_T]`.  The clue's value is the registered
+key `7` and the body is the registered formula; only the tag differs from `%wild`. -/
+def matProgWrongTag : Noun :=
+  hint (.atom 7) (.cell (.atom 1) (.atom 7)) (compile Nock.Field.p (matmulT 2))
 
 /-- **The jetted run**: one `s11j` row with one `s1` child (the clue); the result is the product
 `[[5 8] [15 22]]` computed by the template's semantics. -/
@@ -156,11 +162,18 @@ theorem mat_row_counts :
     (runRows matR 2 toyS matProg).length = 2 ∧ (runRows noR 200 toyS matProg).length = 2999 := by
   decide +kernel
 
-/-- **A tag is a hint kind, not a jet id**: the old form, tag `7`, is no longer a jet.  It is an
-ordinary dynamic hint (`s11d`), evaluated in full to the same value. -/
+/-- The earlier form, tag `7` and clue `[1 0]`, is no longer a jet.  It is an ordinary dynamic hint
+(`s11d`), evaluated in full to the same value. -/
 theorem mat_tagged_not_jet :
     ((runRows matR 200 toyS matProgTagged).map (fun k => k.state)).head? = some .s11d ∧
       (genX matR 200 toyS matProgTagged).map Prod.snd = some toyCG := by
+  decide +kernel
+
+/-- **A tag is a hint kind, not a jet id**: with the registered key and the registered formula,
+a tag other than `%wild` is still not a jet.  Only the tag check rejects this program. -/
+theorem mat_wrong_tag_not_jet :
+    ((runRows matR 200 toyS matProgWrongTag).map (fun k => k.state)).head? = some .s11d ∧
+      (genX matR 200 toyS matProgWrongTag).map Prod.snd = some toyCG := by
   decide +kernel
 
 end Nock.Edit.GenX.Demo

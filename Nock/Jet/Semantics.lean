@@ -130,7 +130,10 @@ theorem JetSpec.faithful_iff (j : JetSpec) :
 /-- The dynamic hint `[11 [id d] c]`. -/
 def hint (id d c : Noun) : Noun := .cell (.atom 11) (.cell (.cell id d) c)
 
-/-- A jet call: the dynamic hint with an atomic id. -/
+/-- The dynamic hint with an atomic tag `n`.  This is the EARLIER jet-call wire form, in which the
+tag itself was the jet id; §D–§F below state that form.  The generator (`Nock/Edit/GenX.lean`)
+now dispatches on the tag `%wild` with the id as the clue's value (`wildCall`), so a `jetCall`
+is an ordinary dynamic hint there.  The `evalN` facts in §D hold for any dynamic hint. -/
 def jetCall (n : ℕ) (d c : Noun) : Noun := hint (.atom n) d c
 
 /-- **`evalN_hint_jet`**: if the clue `d` computes, the hinted call evaluates as its body `c`. -/
@@ -183,7 +186,11 @@ theorem registry_hint_iff {R : Registry} (hR : Registry.Faithful R) {n : ℕ} {j
   ⟨fun h => ⟨(holdsN_hint_iff.1 h).1, registry_hint_rel hR hj h⟩,
    fun ⟨hd, hrel⟩ => registry_hint_holdsN hR hj hd hrel⟩
 
-/-! ## §E The `s11j` row specs (standalone; not wired into `RowOutputF`) -/
+/-! ## §E The `s11j` row specs (standalone; not wired into `RowOutputF`)
+
+These specs read the jet id from the hint's TAG (`f = jetCall n d j.c`).  They predate the
+`%wild` form and do not describe the rows `Nock/Edit/GenX.lean` now generates; the live row
+semantics is `RowNX.SemN` in `Nock/Edit/GenXRows.lean`. -/
 
 /-- The clue `d` of `[11 [id d] c]` (junk `0` off shape). -/
 def jetClue : Noun → Noun

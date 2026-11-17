@@ -11,6 +11,8 @@
     `demandHX_cells_iff`, `handle_cells_mem_demandHX`, `honestAxX_s10`, `mem_demandA`,
     `incRecX_spec`, `bigPairX_spec`.
   * Demos: edit at depth 3, counter `p − 1 → p → p + 1`, jetted matmul `n = 2`.
+  * Jet calls are in the `%wild` form `[11 [%wild [1 id]] c]` (`wildCall`): the tag names the hint
+    kind and the key is the clue's value.
   * Negative controls: (a) a registered jet with a CRASHING clue generates nothing (the clue
     child is load-bearing, J-1's `toy_crash_rel_but_not_holdsN` at the generator); (b) a hint
     whose body is not the registered formula is NOT jetted (an `s11d` row with both children);
@@ -60,7 +62,7 @@ example {R : Registry} {n : ℕ} {s b clue body : Noun} {t : NTree SkelX} {r r' 
     (h : genX R (n + 1) s (.cell (.atom 11) (.cell (.cell b clue) body)) = some (t, r))
     (hcl : genX R n s clue = some (tD, v))
     (hj : jetHit R b v body s = some r') :
-    t.label.state = .s11j ∧ r = r' ∧ ∃ tD v, t.children = [tD] ∧ genX R n s clue = some (tD, v) :=
+    t.label.state = .s11j ∧ r = r' ∧ t.children = [tD] :=
   genX_jet_row h hcl hj
 
 example {a : ℕ} {new old e : Noun} :
@@ -90,7 +92,9 @@ example {R : Registry} (sk : SkelX) (hst : sk.state = .s10) (hs : (rowOfSkelX sk
 
 /-! ## Negative controls -/
 
-/-- (a) A registered jet whose clue CRASHES: the generator produces nothing (and `evalN` too). -/
+/-- (a) A `%wild` hint over a registered formula whose clue CRASHES: the generator produces nothing
+(and `evalN` too).  A crashing clue has no value, so there is no key to dispatch on;
+`nc_crash_clue_jetHit` records that dispatch WOULD hit at the key `7` had a clue produced it. -/
 def crashProg : Noun :=
   hint (.atom wildTag) (.cell (.atom 0) (.atom 0)) (compile Nock.Field.p (matmulT 2))
 

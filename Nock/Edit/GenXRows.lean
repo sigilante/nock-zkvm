@@ -8,7 +8,8 @@
     `fttt = c`, `sf1 = new`, `sf2 = old`; `s10L` (formula the ATOM `a_k`): `sf1 = s = old`,
     `sf2 = e`, `m = a_k xor 1`, `ftth = fttt = ` the sibling; `s11s`: `sf1` = body value;
     `s11d`: `ftth = b`, `fttt = clue`, `sf1` = clue value, `sf2` = body value; `s11j`: as `s11d`
-    with no body child.
+    with no body child, where the tag `ftth` is the atom `%wild` and the jet key is the clue
+    value `sf1` (an atom).
   * `RowNX.SemN R` — what the chip's gates need of a row, at ℕ-level (big atoms native).
     `genX_rowSem` / `inTree_rowSem`: EVERY node of a generated tree satisfies it.
   * `consEntriesX_sound`: every entry of a `SemN` row is a defined slot read at axis `≥ 2`.
